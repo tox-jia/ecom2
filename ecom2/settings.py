@@ -80,11 +80,14 @@ DATABASES = {
         # 'ENGINE': 'django.db.backends.sqlite3',
         # 'NAME': BASE_DIR / 'db.sqlite3',
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'neondb',
-        'USER': 'neondb_owner',
+        'NAME': 'railway',
+        # 'NAME': 'neondb',
+        'USER': 'postgres',
+        #'neondb_owner',
         'PASSWORD': os.environ['DB_PASSWORD'],
         # we use environmental password
-        'HOST': 'ep-twilight-king-a4kc1oo0-pooler.us-east-1.aws.neon.tech',
+        # 'HOST': 'ep-twilight-king-a4kc1oo0-pooler.us-east-1.aws.neon.tech',
+        'HOST': 'postgres.railway.internal',
         'PORT': '5432',
     }
 }
