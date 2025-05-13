@@ -18,6 +18,7 @@ SECRET_KEY = 'django-insecure-^&(#v2#gc*!vww(t!xpp7g=k2+)u)8e_$(3-ipxvichzyyl(dk
 DEBUG = True
 
 ALLOWED_HOSTS = ['https://shamelesis.com',
+                 'shamelesis.com', 
                  'ecom2-production-2c2f.up.railway.app'
                  'https://ecom2-production-2c2f.up.railway.app']
 CSRF_TRUSTED_ORIGINS = ['https://shamelesis.com',
