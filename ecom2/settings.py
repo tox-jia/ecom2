@@ -19,7 +19,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['https://shamelesis.com',
                  'shamelesis.com',
-                 'ecom2-production-2c2f.up.railway.app', 
+                 'ecom2-production-2c2f.up.railway.app',
                  'https://ecom2-production-2c2f.up.railway.app']
 CSRF_TRUSTED_ORIGINS = ['https://shamelesis.com',
                         'https://ecom2-production-2c2f.up.railway.app']
