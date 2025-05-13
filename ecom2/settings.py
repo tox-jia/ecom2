@@ -87,8 +87,9 @@ DATABASES = {
         'PASSWORD': os.environ['DB_PASSWORD'],
         # we use environmental password
         # 'HOST': 'ep-twilight-king-a4kc1oo0-pooler.us-east-1.aws.neon.tech',
-        'HOST': 'postgres-production-383e.up.railway.app',
-        'PORT': '5432',
+        'HOST': 'shuttle.proxy.rlwy.net',
+        'PORT': '18926',
+        # 'PORT': '5432',
     }
 }
 
