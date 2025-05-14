@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'store',
     'payment',
     'whitenoise.runserver_nostatic',
+    'paypal.standard.ipn',
 ]
 
 MIDDLEWARE = [
@@ -142,3 +143,8 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# add paypal settings
+# set sandbox to true
+PAYPAL_TEST = True
+PAYPAL_RECEIVE_EMAIL = 'business@shamelesis.com'
