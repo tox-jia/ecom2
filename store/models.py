@@ -7,6 +7,8 @@ from django.contrib.auth.models import User
 # this will allow us to create a profile using the signal.
 from django.db.models.signals import post_save
 
+from cloudinary.models import CloudinaryField
+
 
 # create customer profile
 class Profile(models.Model):
@@ -71,7 +73,8 @@ class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, default=1)
     description = models.CharField(max_length=250, default='', blank=True, null=True)
     # blank=True, means no necessary to have a description
-    image = models.ImageField(upload_to='uploads/product/')
+    # image = models.ImageField(upload_to='uploads/product/')
+    image = CloudinaryField('image')
     # we need to install PILLOW (python image library), pip3 install Pillow
     # add Sale stuff
     is_sale = models.BooleanField(default=False)
