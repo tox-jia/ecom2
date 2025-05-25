@@ -190,13 +190,29 @@ def billing_info(request):
 
         # Get the host, we need to tell PalPay where does it send us back to
         host = request.get_host()
+
+        # create Invoice number
+        my_Invoice = str(uuid.uuid4())
+
+        # Order Info
+        full_name = my_shipping['shipping_full_name']
+        email = my_shipping['shipping_email']
+        # create shipping address from session info
+        shipping_address = (f"{my_shipping['shipping_address1']}\n"
+                            f"{my_shipping['shipping_address2']}\n"
+                            f"{my_shipping['shipping_city']}\n"
+                            f"{my_shipping['shipping_state']}\n"
+                            f"{my_shipping['shipping_zipcode']}\n"
+                            f"{my_shipping['shipping_country']}\n")
+        amount_paid = totals
+
         # Create a PayPal form dictionary
         paypal_dic = {
             'business': settings.PAYPAL_RECEIVER_EMAIL,
             'amount': totals,
             'item_name': "Book Order",
             'no_shipping': "2",
-            'invoice': str(uuid.uuid4()),
+            'invoice': my_Invoice,
             'currency_code': 'USD',
             'notify_url': 'https://{}{}'.format(host, reverse("paypal-ipn")),
             'return_url': 'https://{}{}'.format(host, reverse("payment_success")),
@@ -208,23 +224,79 @@ def billing_info(request):
 
         # check to see if the user is logged in
         if request.user.is_authenticated:
-            # Get the Billing Form
-            billing_form = PaymentForm()
-            return render(request, "payment/billing_info.html", {"cart_products": cart_products,
-                                                                 "quantities": quantities,
-                                                                 "paypal_form": paypal_form,
-                                                                 "totals": totals,
-                                                                 "shipping_info": request.POST,
-                                                                 "billing_form":billing_form})
+            # logged in
+            user = request.user
+            create_order = Order(user=user, full_name=full_name, email=email,
+                                 shipping_address=shipping_address,
+                                 amount_paid=amount_paid,
+                                 invoice=my_Invoice)
+            create_order.save()
+
+            # add order items
+            # get the order id
+            order_id = create_order.pk
+            # // pk stands for primary Key
+
+            # get product Info
+            for product in cart_products:
+                # get product id
+                product_id = product.id
+                # get product price
+                if product.is_sale:
+                    price = product.is_sale
+                else:
+                    price = product.price
+                # get quantity
+                for key, value in quantities.items():
+                    if int(key) == product.id:
+                        # create order item
+                        create_order_item = OrderItems(order_id=order_id,
+                                                       product_id=product_id, user=user,
+                                                       quantity=value, price=price)
+                        create_order_item.save()
+
+            # clean the cart
+            clear_cart_profile = Profile.objects.filter(user__id=request.user.id)
+            clear_cart_profile.update(old_cart={})
+
         else: # if not logged in
-            # Get the Billing Form
-            billing_form = PaymentForm()
-            return render(request, "payment/billing_info.html", {"cart_products": cart_products,
-                                                                 "quantities": quantities,
-                                                                 "paypal_form": paypal_form,
-                                                                 "totals": totals,
-                                                                 "shipping_info": request.POST,
-                                                                 "billing_form": billing_form})
+            create_order = Order(full_name=full_name, email=email,
+                                 shipping_address=shipping_address,
+                                 amount_paid=amount_paid,
+                                 invoice=my_Invoice)
+            # // no 'user' because it is guest mode
+            create_order.save()
+            # add order items
+            # get the order id
+            order_id = create_order.pk
+            # // pk stands for primary Key
+
+            # get product Info
+            for product in cart_products:
+                # get product id
+                product_id = product.id
+                # get product price
+                if product.is_sale:
+                    price = product.is_sale
+                else:
+                    price = product.price
+                # get quantity
+                for key, value in quantities.items():
+                    if int(key) == product.id:
+                        # create order item
+                        create_order_item = OrderItems(order_id=order_id, product_id=product_id,
+                                                       quantity=value, price=price)
+                        create_order_item.save()
+
+        # Get the Billing Form
+        billing_form = PaymentForm()
+        # Get the Billing Form
+        return render(request, "payment/billing_info.html", {"cart_products": cart_products,
+                                                             "quantities": quantities,
+                                                             "paypal_form": paypal_form,
+                                                             "totals": totals,
+                                                             "shipping_info": request.POST,
+                                                             "billing_form": billing_form})
     else:
         messages.success(request, ('Access Denied'))
         return redirect('home')

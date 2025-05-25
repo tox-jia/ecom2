@@ -19,7 +19,8 @@ class OrderAdmin(admin.ModelAdmin):
     # another way of showing what you want:
     fields = ['user', 'full_name', 'email',
               'shipping_address', 'amount_paid',
-              'date_ordered', 'shipped', 'date_shipped']
+              'date_ordered', 'shipped', 'date_shipped',
+              'invoice', 'paid']
     inlines = [OrderItemInline]
 
 # Unregister Order Model
