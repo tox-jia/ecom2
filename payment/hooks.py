@@ -13,7 +13,7 @@ from django.conf import settings
 import time
 #// do some timing stuff
 
-import .models import Order
+from .models import Order
 
 
 @receiver(valid_ipn_received)
