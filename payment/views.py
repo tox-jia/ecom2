@@ -163,10 +163,11 @@ def process_order(request):
             if key == 'session_key':
                 # delete the key
                 del request.session[key]
-            # also clean & update DB where the cart previous history was saved
-            if request.user.is_authenticated:
-                clear_cart_profile = Profile.objects.filter(user__id=request.user.id)
-                clear_cart_profile.update(old_cart={})
+
+        # also clean & update DB where the cart previous history was saved
+        if request.user.is_authenticated:
+            clear_cart_profile = Profile.objects.filter(user__id=request.user.id)
+            clear_cart_profile.update(old_cart={})
         messages.success(request, ('Order Placed'))
         return redirect('home')
 
@@ -328,6 +329,11 @@ def checkout(request):
 
 
 def payment_success(request):
+    # clean the cart
+    for key in list(request.session.keys()):
+        if key == 'session_key':
+            # delete the key
+            del request.session[key]
     return render(request, 'payment/payment_success.html', {})
 
 
