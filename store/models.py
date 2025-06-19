@@ -1,3 +1,5 @@
+from email.policy import default
+
 from django.db import models
 import datetime
 from django.contrib.auth.models import User
@@ -8,9 +10,10 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 
 from cloudinary.models import CloudinaryField
+from django_ckeditor_5.fields import CKEditor5Field
 
 
-# create customer profile
+# create profile
 class Profile(models.Model):
     # if the user is deleted, the profile page is deleted as well, it's a one-one connection
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -27,9 +30,13 @@ class Profile(models.Model):
     country = models.CharField(max_length=200, blank=True)
     old_cart = models.CharField(max_length=200, blank=True, null=True)
 
-    # for the amin section
+    # NEW field for timezone
+    timezone = models.CharField(max_length=50, blank=True, null=True)
+
+    # for the admin section
     def __str__(self):
         return self.user.username
+
 
 # create a user profile whenever register by default
 def create_profile(sender, instance, created, **kwargs):
@@ -43,8 +50,6 @@ def create_profile(sender, instance, created, **kwargs):
 post_save.connect(create_profile, sender=User)
 
 
-
-
 class Category(models.Model):
     name = models.CharField(max_length=50)
 
@@ -53,17 +58,6 @@ class Category(models.Model):
     # this is to show the name to the admin interface
     class Meta:
         verbose_name_plural = 'categories'
-
-
-class Customer(models.Model):
-    first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
-    phone = models.CharField(max_length=10)
-    email = models.EmailField(max_length=100)
-    password = models.CharField(max_length=100)
-
-    def __str__(self):
-        return f'{self.first_name} {self.last_name}'
 
 
 class Product(models.Model):
@@ -79,6 +73,20 @@ class Product(models.Model):
     # add Sale stuff
     is_sale = models.BooleanField(default=False)
     sale_price = models.DecimalField(default=0, decimal_places=2, max_digits=6)
+    # membership = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
+
+
+class Membership(models.Model):
+    name = models.CharField(max_length=100)
+    price = models.DecimalField(default=0, decimal_places=2, max_digits=6)
+    description = CKEditor5Field('Content', config_name='default')
+    image = CloudinaryField('image')
+    is_active = models.BooleanField(default=False)
+    is_sale = models.BooleanField(default=False)
+    sale_price = models.DecimalField(default=0, decimal_places=2, max_digits=6)
 
     def __str__(self):
         return self.name
@@ -86,7 +94,6 @@ class Product(models.Model):
 
 class Order(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=1)
     address = models.CharField(max_length=100, default='', blank=True, null=True)
     #cuz some users order ebook, no need to ship

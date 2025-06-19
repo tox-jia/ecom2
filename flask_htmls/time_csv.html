@@ -1,0 +1,31 @@
+{% extends 'nav_time.html' %}
+{% block title %}
+History
+{% endblock %}
+{% block js %}
+<script type="text/javascript">
+   document.getElementById("time2").style.backgroundColor = "#fff";
+   document.getElementById("time2").firstChild.style.color = "#000";
+   document.getElementById("time2").firstChild.style.fontWeight = "bold"
+</script>
+{% endblock %}
+{% block content %}
+
+{% for i in records %}
+<div>{{i.id}}</div>
+{% endfor %}
+
+{% for c in cols %}
+<div>{{c}}</div>
+{% endfor %}
+
+<br>
+<div>{{k1}}</div>
+
+<br>
+<div>{{k2}}</div>
+
+<br>
+<div>{{k3}}</div>
+
+{% endblock %}

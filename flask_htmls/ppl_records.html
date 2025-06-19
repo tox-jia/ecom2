@@ -1,0 +1,62 @@
+{% extends 'nav_people.html' %}
+{% block title %}
+Records
+{% endblock %}
+{% block js %}
+<script type="text/javascript">
+   document.getElementById("ppl2").style.backgroundColor = "#fff";
+   document.getElementById("ppl2").firstChild.style.color = "#000";
+   document.getElementById("ppl2").firstChild.style.fontWeight = "bold"
+</script>
+
+{% endblock %}
+{% block content %}
+<div class="col-12 text-end pe-2">
+   <a href="{{ url_for('download_page', i='people') }}">⇩</a>
+</div>
+<form id="my_form" method="POST" class="form-register">
+{{ form.hidden_tag() }}
+<div class="container-fluid px-2 pt-2">
+<div class="row">
+<div class="col-12">
+      <!-- {-{-}-} can access varibles from URL -->
+      <table class="table border border-1">
+         <thead>
+            <tr>
+               <!-- Your Columns HERE -->
+               <th scope="col">type</th>
+               <th scope="col">name</th>
+               <th scope="col">comments</th>
+               <th scope="col">like</th>
+               <th scope="col">EQ/IQ</th>
+               <th scope="col"></th>
+            </tr>
+         </thead>
+         <tbody>
+            <!-- Your rows inside the table HERE: -->
+            {% for record in records %}
+            <tr>
+
+               <td>{{ record.relation_type }}</td>
+               <td>{{ record.name }}</td>
+               <td>{{ record.comment }}</td>
+               <td>{{ record.like_degree }}</td>
+               <td>{{ record.eq }}/{{ record.iq }}</td>
+               <td>
+                  <input style="display:none" name="del_id" id="ch{{ record.id }}" type="radio" value="{{ record.id }}">
+                  <a href="javascript:{}" onclick="
+                              document.getElementById('ch{{ record.id }}').checked = true;
+                              document.getElementById('my_form').submit();
+                              ">
+                     x
+                  </a>
+               </td>
+            </tr>
+            {% endfor %}
+         </tbody>
+      </table>
+   </div>
+</div>
+</div>
+</form>
+{% endblock %}

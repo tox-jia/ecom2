@@ -1,59 +1,76 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container px-4 px-lg-5">
-        <a class="navbar-brand" href="{% url 'home' %}"><h2>ShameleSis</h2></a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+        <a class="navbar-brand" href="{% url 'home' %}"><h2 style="font-weight:bold;">ShameleSis</h2></a>
+        <!-- --------------------------  -->
+        <!-- Navigation: Narrow display, phone/tablet -->
+        <!-- --------------------------  -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <!-- --------------------------  -->
+        <!-- Navigation: Normal display, screen -->
+        <!-- --------------------------  -->
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+                <!-- --------------------------  -->
+                <!-- Admin: Create post  -->
+                <!-- --------------------------  -->
+                {% if user.is_superuser %}
                 <li class="nav-item">
-                    <a class="nav-link active"
+                    <a class="nav-link"
                        aria-current="page"
-                       href="{% url 'home' %}">
-                        Home
+                       href="{% url 'create_post' %}"
+                       style="color: #070; font-weight: bold;"
+                    >
+                        POST
+                    </a>
+                </li>
+                <!-- --------------------------  -->
+                <!-- Admin: Time  -->
+                <!-- --------------------------  -->
+                <li class="nav-item">
+                    <a class="nav-link"
+                       aria-current="page"
+                       href="{% url 'time_checkout' %}"
+                       style="color: #00F; font-weight: bold;"
+                    >
+                        TIME
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link"
                        aria-current="page"
-                       href="{% url 'search' %}">
-                        Search
+                       href="{% url 'time_records' %}"
+                       style="color: #00F; font-weight: bold;"
+                    >
+                        Records
                     </a>
                 </li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'about' %}">About</a></li>
-
-                {% if user.is_authenticated == False %}
-                <li class="nav-item"><a class="nav-link" href="{% url 'register' %}">Register</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
-
-                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link"
+                       aria-current="page"
+                       href="{% url 'time_settings' %}"
+                       style="color: #00F; font-weight: bold;"
+                    >
+                        Settings
+                    </a>
+                </li>
+                <!-- --------------------------  -->
+                <!-- Admin: order  -->
+                <!-- --------------------------  -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle"
                        id="navbarDropdown" href="#"
                        role="button"
                        data-bs-toggle="dropdown"
-                       aria-expanded="false">Profile</a>
-                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <li>
-                            <a class="dropdown-item"
-                               href="{% url 'update_user' %}">
-                                User Profile
-                            </a>
-                        </li>
-                        <li><hr class="dropdown-divider" /></li>
-                        <li>
-                            <a class="dropdown-item"
-                               href="{% url 'update_info' %}">
-                            User Info
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-                    {% if user.is_superuser %}
-                    <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle"
-                       id="navbarDropdown" href="#"
-                       role="button"
-                       data-bs-toggle="dropdown"
-                       aria-expanded="false">Order</a>
+                       aria-expanded="false"
+                       style="color: #F00; font-weight: bold;"
+                    >
+                        ORDER
+                    </a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <li>
                             <a class="dropdown-item"
@@ -70,25 +87,143 @@
                         </li>
                     </ul>
                 </li>
-                    {% endif %}
-                <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+                {% else %}
+                <!-- --------------------------  -->
+                <!-- Home, About, Contact -->
+                <!-- --------------------------  -->
+                <li class="nav-item">
+                    <a class="nav-link {% if request.path == '/' %}active{% endif %}" aria-current="page" href="{% url 'home' %}">
+                        Home
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.path == '/about/' %}active{% endif %}" href="{% url 'about' %}">
+                        About
+                    </a>
+                </li>
+                <!-- --------------------------  -->
+                <!-- Blog  -->
+                <!-- --------------------------  -->
+                <li class="nav-item">
+                    <a class="nav-link {% if request.path == '/blog/' %}active{% endif %}" href="{% url 'blog' %}">
+                        Blog
+                    </a>
+                </li>
+                <!-- --------------------------  -->
+                <!-- Membership  -->
+                <!-- --------------------------  -->
+                <li class="nav-item">
+                    <a class="nav-link {% if request.path == '/membership/' %}active{% endif %}" href="{% url 'membership' %}">
+                        Membership
+                    </a>
+                </li>
+                <!-- --------------------------  -->
+                <!-- Product  -->
+                <!-- --------------------------  -->
+            <!--                <li class="nav-item dropdown">-->
+            <!--                    <a class="nav-link dropdown-toggle" -->
+            <!--                       id="navbarDropdown" -->
+            <!--                       href="#" -->
+            <!--                       role="button" -->
+            <!--                       data-bs-toggle="dropdown" -->
+            <!--                       aria-expanded="false"-->
+            <!--                    >-->
+            <!--                        Membership-->
+            <!--                    </a>-->
+            <!--                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">-->
+            <!--                        <li><a class="dropdown-item" href="{% url 'category_summary' %}">All Products</a></li>-->
+            <!--                        <li><hr class="dropdown-divider" /></li>-->
+            <!--                        <li><a class="dropdown-item" href="{% url 'category' 'program-book' %}">Program Book</a></li>-->
+            <!--                    </ul>-->
+            <!--                </li>-->
                 {% endif %}
+                <!-- --------------------------  -->
+                <!-- Log in/out & Register  -->
+                <!-- --------------------------  -->
+                {% if user.is_authenticated == False %}
+                <li class="nav-item">
+                    <a class="nav-link {% if request.path == '/register/' %}active{% endif %}" href="{% url 'google' %}">
+                        Register
+                    </a>
+                </li>
+                <li class="nav-item me-5">
+                    <a class="nav-link {% if request.path == '/login/' %}active{% endif %}" href="{% url 'google' %}">
+                        Login
+                    </a>
+                </li>
+                <!-- --------------------------  -->
+                <!-- profile: info, shipping & billing  -->
+                <!-- --------------------------  -->
+                {% else %}
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Categories</a>
+                    <a class="nav-link dropdown-toggle {% if request.path == '/update_user/' or request.path == '/update_info/' %}active{% endif %}"
+                       id="navbarDropdown" href="#"
+                       role="button"
+                       data-bs-toggle="dropdown"
+                       aria-expanded="false">Profile</a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="{% url 'category_summary' %}">All Products</a></li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'update_user' %}">
+                                User Profile
+                            </a>
+                        </li>
                         <li><hr class="dropdown-divider" /></li>
-                        <li><a class="dropdown-item" href="{% url 'category' 'program-book' %}">Program Book</a></li>
+                        <li>
+                            <a class="dropdown-item"
+                               href="{% url 'update_info' %}">
+                            User Info
+                            </a>
+                        </li>
                     </ul>
                 </li>
+                <!-- --------------------------  -->
+                <!-- logout  -->
+                <!-- --------------------------  -->
+                <li class="nav-item">
+                    <a class="nav-link me-4" href="{% url 'logout' %}">
+                        Logout
+                    </a>
+                </li>
+                {% endif %}
+                <!-- --------------------------  -->
+                <!-- search bar  -->
+                <!-- --------------------------  -->
+                {% if not user.is_superuser %}
+                <li class="nav-item text-center me-2">
+                    <form class="pl-2" method="POST" action="{% url 'search' %}">
+                        {% csrf_token %}
+                        <div class="input-group" style="width: 150px;">
+                        <input type="search" class="form-control search-bar" placeholder="Search"
+                               style="border-top-left-radius:
+                               50px; border-bottom-left-radius: 50px;"
+                               name ="searched"
+                                >
+                        <button class="btn btn-outline-secondary search-bar py-0" type="submit"
+                                style="
+                                border-top-right-radius: 50px;
+                                border-bottom-right-radius: 50px;
+                               ">
+                          <i class="bi bi-search"></i>
+                        </button>
+                        </div>
+                    </form>
+                </li>
+                {% endif %}
+                <!-- --------------------------  -->
+                <!-- END  -->
+                <!-- --------------------------  -->
             </ul>
+            <!-- --------------------------  -->
+            <!-- cart  -->
+            <!-- --------------------------  -->
             <form class="d-flex">
                 <a href="{% url 'cart_summary' %}" class="btn btn-outline-dark">
                     <i class="bi-cart-fill me-1"></i>
-                    Cart
+<!--                    Cart-->
                     <span class="badge bg-dark text-white ms-1 rounded-pill" id="cart_quantity">{{ cart|length }}</span>
                 </a>
             </form>
+            <!-- END  -->
         </div>
     </div>
 </nav>

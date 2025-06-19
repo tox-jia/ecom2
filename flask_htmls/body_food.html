@@ -1,0 +1,116 @@
+{% extends 'nav_body.html' %}
+{% block title %}
+Body
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript" xmlns="http://www.w3.org/1999/html">
+   document.getElementById("body2").style.backgroundColor = "#fff";
+   document.getElementById("body2").firstChild.style.color = "#000";
+   document.getElementById("body2").firstChild.style.fontWeight = "bold"
+</script>
+{% endblock %}
+
+{% block content %}
+<form method="POST" class="form-register">
+{{ form.hidden_tag() }}
+
+<div class="container-fluid text-center border border-secondary mt-2" style="width:400px">
+    <div class="row text-center">
+        <div class="col-12 text-danger pt-2" style="font-size:12px">If the check-out time is not Now, manually input the time. Otherwise leave this calendar blank.</div>
+        <div class="col-12 mb-2">
+            <div style="margin-right:20px; font-weight: bold; float:left; font-size:12px; padding-top:5px;">Timezone: {{ timezone[4:10] }}</div>
+            <div style="float:left">
+                <input type="datetime-local" name="time_correction">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid text-center mt-3">
+    <div class="row text-center">
+        <div class="col-12">
+            <div style="width: 50px">
+                <strong style="margin-right:20px">Type:</strong>
+            </div>
+            <div style="margin-left:20px; float:left">
+                <input id="EQ-A" type="radio" name="food_type" value="Breakfast">
+                <label class="pe-3" for="EQ-A">Breakfast</label>
+                <input id="EQ-B" checked type="radio" name="food_type" value="Lunch">
+                <label class="pe-3" for="EQ-B">Lunch</label>
+                <input id="EQ-C" type="radio" name="food_type" value="Dinner">
+                <label class="pe-3" for="EQ-C">Dinner</label>
+                <input id="EQ-D" type="radio" name="food_type" value="Snack">
+                <label class="pe-3" for="EQ-D">Snack</label>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid text-center mt-3">
+    <div class="row text-center">
+        <div class="col-12">
+            <div style="width: 50px">
+                <strong style="margin-right:20px">Food:</strong>
+            </div>
+            <div style="margin-left:20px; float:left">
+                <input id="D" type="text" name="cooking_type" placeholder="...">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container text-center pt-3">
+    <div class="row">
+        <div class="col">
+                {{ form.submit(class="btn-sm btn-primary") }}
+        </div>
+    </div>
+</div>
+</form>
+
+
+<form id="my_form" method="POST" class="form-register">
+{{ form2.hidden_tag() }}
+<div class="container-fluid px-2 pt-2" style="font-size:12px">
+   <div class="row">
+      <div class="col-12">
+         <!-- {-{-}-} can access varibles from URL -->
+         <table class="table border border-1">
+            <thead>
+               <tr>
+                  <!-- Your Columns HERE -->
+                  <th scope="col">Date</th>
+                  <th scope="col">Type</th>
+                   <th scope="col">Food</th>
+                   <th scope="col"></th>
+               </tr>
+            </thead>
+            <tbody>
+               <!-- Your rows inside the table HERE: -->
+               {% for record in records %}
+               <tr>
+                  <td>{{ a[record.id][0:17] }}</td>
+                  <td>{{ record.food_type }}</td>
+                   <td>{{ record.cooking_type }}</td>
+                   <td>
+                  <input style="display:none" name="del_id" id="ch{{ record.id }}" type="radio" value="{{ record.id }}">
+                  <a href="javascript:{}" onclick="
+                              document.getElementById('ch{{ record.id }}').checked = true;
+                              document.getElementById('my_form').submit();
+                              ">
+                     x
+                  </a>
+               </td>
+               </tr>
+               {% endfor %}
+            </tbody>
+         </table>
+      </div>
+   </div>
+</div>
+</form>
+
+{% endblock %}
+
+

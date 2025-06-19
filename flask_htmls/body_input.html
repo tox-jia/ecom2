@@ -1,0 +1,88 @@
+{% extends 'nav_body.html' %}
+{% block title %}
+Body
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+   document.getElementById("body1").style.backgroundColor = "#fff";
+   document.getElementById("body1").firstChild.style.color = "#000";
+   document.getElementById("body1").firstChild.style.fontWeight = "bold"
+</script>
+{% endblock %}
+
+{% block content %}
+
+<form method="POST" class="form-register">
+{{ form.hidden_tag() }}
+
+<div class="container-fluid text-center border border-secondary mt-3" style="width:400px">
+    <div class="row text-center">
+        <div class="col-12 text-danger pt-2" style="font-size:12px">If the check-out time is not Now, manually input the time. Otherwise leave this calendar blank.</div>
+        <div class="col-12 mb-2">
+            <div style="margin-right:20px; font-weight: bold; float:left; font-size:12px; padding-top:5px;">Timezone: {{ timezone[4:10] }}</div>
+            <div style="float:left">
+                <input type="datetime-local" name="time_correction">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container text-center pt-3">
+    <div class="row">
+        <div class="col">
+            <div style="float:left; margin-right:10px">Weight: </div>
+            <div style="float:left; margin-right:30px"><input type="text" name="weight" placeholder="0.0"></div>
+            <div style="float:left">
+                {{ form.submit(class="btn-sm btn-primary") }}
+            </div>
+            <div style="float:left" class="ps-5 pt-1">
+                <a href="{{ url_for('download_page', i='weight') }}">⇩</a>
+            </div>
+        </div>
+    </div>
+</div>
+</form>
+
+
+<form id="my_form" method="POST" class="form-register">
+{{ form2.hidden_tag() }}
+<div class="container-fluid px-2 pt-2">
+   <div class="row">
+      <div class="col-12">
+         <!-- {-{-}-} can access varibles from URL -->
+         <table class="table border border-1">
+            <thead>
+               <tr>
+                  <!-- Your Columns HERE -->
+                  <th scope="col">Date</th>
+                  <th scope="col">Weight</th>
+                   <th scope="col">-</th>
+               </tr>
+            </thead>
+            <tbody>
+               <!-- Your rows inside the table HERE: -->
+               {% for record in records %}
+               <tr>
+                  <td>{{ a[record.id][0:17] }}</td>
+                  <td>{{ record.weight }}</td>
+                  <td>
+                  <input style="display:none" name="del_id" id="ch{{ record.id }}" type="radio" value="{{ record.id }}">
+                  <a href="javascript:{}" onclick="
+                              document.getElementById('ch{{ record.id }}').checked = true;
+                              document.getElementById('my_form').submit();
+                              ">
+                     x
+                  </a>
+               </td>
+               </tr>
+               {% endfor %}
+            </tbody>
+         </table>
+      </div>
+   </div>
+</div>
+</form>
+{% endblock %}
+
+

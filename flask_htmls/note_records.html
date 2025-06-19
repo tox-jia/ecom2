@@ -1,0 +1,42 @@
+{% extends 'nav_note.html' %}
+{% block title %}
+Note Records
+{% endblock %}
+
+{% block js %}
+<style>
+   .text_dairy pre{
+      font-size:14px;
+      font-family: "Arial";
+   }
+   .text_d_title{
+      font-size:12px;
+   }
+</style>
+<script type="text/javascript">
+   document.getElementById("note2").style.backgroundColor = "#fff";
+   document.getElementById("note2").firstChild.style.color = "#000";
+   document.getElementById("note2").firstChild.style.fontWeight = "bold"
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="col-12 text-end pe-2">
+   <a href="{{ url_for('download_page', i='code') }}">⇩</a>
+</div>
+<div class="container-fluid px-2">
+
+{% for record in records %}
+<div class="row border mb-2">
+   <div class="col-6 text_d_title">{{ record.type }}-{{ record.sub_type }}</div>
+
+   <div class="col-2 text_d_title text-center">
+      <input style="display:none" name="del_id" id="ch{{ record.id }}" type="radio" value="{{ record.id }}">
+      <a href="{{ url_for('note_edit_page', idk = record.id) }}">edit</a>
+   </div>
+   <div class="col-12" style="color:#00f"><strong>{{ record.title }}</strong></div>
+   <div class="col-12 mt-2 ms-2 text_dairy"><pre>{{ record.content }}</pre></div>
+</div>
+{% endfor %}
+</div>
+{% endblock %}

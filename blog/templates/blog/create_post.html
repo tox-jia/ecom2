@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<style>
+.ck-editor__editable_inline {
+    min-height: 500px; /* Or any height you want */
+}
+</style>
+<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+<!--{{ form.media }}-->
+<div class="container">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-4">{{ form.title.label_tag }} {{ form.title }}</div>
+            <div class="col-md-4"><div style="width: 10%">{{ form.image }}</div></div>
+            <div class="col-md-4"><button type="submit">Publish</button></div>
+        </div>
+        <div class="row">
+            <div class="col-md-12"><textarea id="editor" name="content"></textarea></div>
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/ENd8TX4bbVs" frameborder="0" allowfullscreen></iframe>
+        </div>
+        <div id="cropper-tools" class="col-md-2">
+            <button id="custom-insert-image" type="button">Crop</button>
+            <input type="file" id="custom-image-input" style="display: none;" accept="image/*">
+            <div id="image-crop-container" style="display: none;">
+                <img id="image-preview" style="width: 20%;" />
+                <button id="crop-confirm" type="button">Insert</button>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+<br/><br/>
+
+<script>
+ClassicEditor
+    .create(document.querySelector('#editor'))
+    .then(editor => {
+        editorInstance = editor;
+        console.log('CKEditor initialized successfully');
+    })
+    .catch(error => {
+        console.error('CKEditor init failed:', error);
+    });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+<script src="{% static 'js/image_cropper.js' %}"></script>
+<script src="{% static 'js/image_cropper_insert.js' %}"></script>
+
+{% endblock %}

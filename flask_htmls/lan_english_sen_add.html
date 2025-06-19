@@ -1,0 +1,52 @@
+{% extends 'nav_english.html' %}
+{% block title %}
+Input English
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+   document.getElementById("lan5").style.backgroundColor = "#fff";
+   document.getElementById("lan5").firstChild.style.color = "#000";
+   document.getElementById("lan5").firstChild.style.fontWeight = "bold"
+
+</script>
+{% endblock %}
+
+{% block content %}
+
+<form method="POST" class="form-form-signin">
+   {{ form.hidden_tag() }}
+   <div class="container-fluid p-0 text-center">
+      <div class="row px-1 mx-1 mt-2">
+         <div class="col-12 text-start">No.{{ new_id }}</div>
+         <div class="col-12 py-1 text-start">
+            <input class="form-control mt-1" name="book" id="book" placeholder="book" value="The Backpacker">
+            <input type="hidden" class="form-control mt-1" name="favor" id="favor" value=0>
+         </div>
+
+          <div class="col-12 text-start pt-2">
+             <textarea class="form-control" id="sentence" name="sentence" rows="10"></textarea>
+          </div>
+          <div class="col-12 py-2 text-start">
+             <div class="d-grid">
+             <button type="submit" id="submit" class="mt-2 btn btn-primary">Add</button>
+                </div>
+          </div>
+      </div>
+   </div>
+
+</form>
+
+<script type="text/javascript">
+   var input = document.getElementById('sentence');
+   input.focus();
+   input.select();
+
+   document.onkeyup = function(e) {
+     if (e.shiftKey && e.which == 13) { //ctr +b
+       document.getElementById("submit").click();
+     }
+   };
+</script>
+
+{% endblock %}

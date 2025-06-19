@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    .blog-content img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    figure.image.image_resized {
+        display: block;
+        margin: 1em 0;
+    }
+
+    figure.image.image_resized img {
+        width: 100%;
+        height: auto;
+    }
+</style>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+          <h1>{{ post.title }}</h1>
+          <div class="blog-content">{{ post.content|safe }}</div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+  $('oembed[url]').each(function() {
+    const $this = $(this);
+    const url = $this.attr('url');
+
+    // Only process YouTube links
+    const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
+    if (ytMatch) {
+      const videoId = ytMatch[1];
+      const iframe = `
+        <iframe width="560" height="315"
+                src="https://www.youtube.com/embed/${videoId}"
+                frameborder="0"
+                allowfullscreen>
+        </iframe>`;
+
+      // Replace the <oembed> tag with the iframe
+      $this.replaceWith(iframe);
+    }
+  });
+});
+</script>
+
+<br/><br/>
+{% endblock %}

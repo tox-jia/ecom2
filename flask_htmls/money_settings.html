@@ -1,0 +1,86 @@
+{% extends 'nav_money.html' %}
+{% block title %}
+Setting Page
+{% endblock %}
+{% block js %}
+<script type="text/javascript">
+   document.getElementById("money4").style.backgroundColor = "#fff";
+   document.getElementById("money4").firstChild.style.color = "#000";
+   document.getElementById("money4").firstChild.style.fontWeight = "bold"
+</script>
+{% endblock %}
+{% block content %}
+<div class="container-fluid p-0 text-center mt-3 pb-2">
+   <form method="POST" class="form">
+      {{ form.hidden_tag() }}
+      <div class="row border border-dark px-1 mx-1">
+         <div class="col-12 py-1">
+             <div class="me-2" style="float:left">Symbol:</div>
+             <div class="me-4" style="float:left"><input style="width:30px" type="text" name="symbol"></div>
+             <div class="me-2" style="float:left">Type:</div>
+             <div class="me-4" style="float:left"><input style="width:80px" type="text" name="type"></div>
+             <div style="float:left">{{ form.submit(class="btn btn-primary btn-sm", style="font-size:12px") }}</div>
+        </div>
+      </div>
+   </form>
+</div>
+{% if types.first() %}
+<div class="container-fluid p-0">
+<form method="POST" class="form-register">
+   {{ form2.hidden_tag() }}
+   <div class="row row border border-dark px-1 mx-1 mt-2 pb-2">
+      <div class="col-6 px-1">
+         <table class="table">
+            <thead>
+               <tr>
+                  <th></th>
+                  <th>Type</th>
+                  <th>Type_name</th>
+
+               </tr>
+            </thead>
+            <tbody>
+               {% for type in types %}
+               <tr>
+                  {% if type.id%2==0 %}
+                  <td><input type="radio" id="{{ type.type }}" name="selected_type" value="{{ type.type }}"></td>
+                  <td><label for="{{ type.type }}">{{ type.symbol }}</label></td>
+                  <td style="color:#aaa"><label for="{{ type.type }}">{{ type.type }}</label></td>
+                  {% endif %}
+               </tr>
+               {% endfor %}
+            </tbody>
+         </table>
+      </div>
+      <div class="col-6 px-1">
+         <table class="table">
+            <thead>
+               <tr>
+                  <th></th>
+                  <th>Tag</th>
+                  <th>Type</th>
+               </tr>
+            </thead>
+            <tbody>
+               {% for type in types %}
+               <tr>
+                  {% if type.id%2==1 %}
+                  <td><input type="radio" id="{{ type.type }}" name="selected_type" value="{{ type.type }}"></td>
+                  <td><label for="{{ type.type }}">{{ type.symbol }}</label></td>
+                  <td style="color:#aaa"><label for="{{ type.type }}">{{ type.type }}</label></td>
+                  {% endif %}
+               </tr>
+               {% endfor %}
+            </tbody>
+         </table>
+
+      </div>
+       <div class="col-12 pb-2 text-center">
+            {{ form2.submit(class="btn btn-block btn-danger", value="Delete Tag") }}
+         </div>
+   </div>
+</form>
+</div>
+{% endif %}
+
+{% endblock %}

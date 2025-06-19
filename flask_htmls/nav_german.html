@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+
+{% block nav %}
+<div class="container-fluid p-0 m-0">
+    <div class="row border-bottom border-dark" style="height:40px">
+        <div id="lan1" class="col-3 text-center pt-2 border-dark border-end" style="background-color: #aaa"><a href="{{ url_for('lan_german_convert_page') }}" style="color: #fff">German</a></div>
+        <div id="lan22" class="col-3 text-center pt-2 border-dark border-end" style="background-color: #aaa"><a href="{{ url_for('lan_german_records_page') }}" style="color: #fff">Words</a></div>
+        <div id="lan3" class="col-3 text-center pt-2 border-dark border-end" style="background-color: #aaa"><a href="{{ url_for('lan_german_add_page') }}" style="color: #fff">Add</a></div>
+        <div id="lan4" class="col-3 text-center pt-2" style="background-color: #aaa"><a href="{{ url_for('lan_german_type_page') }}" style="color: #fff">Types</a></div>
+    </div>
+</div>
+{% endblock %}
+

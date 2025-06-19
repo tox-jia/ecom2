@@ -1,3 +1,4 @@
+from multiprocessing.process import AuthenticationString
 from pathlib import Path
 import os
 from dotenv import load_dotenv
@@ -21,16 +22,20 @@ SECRET_KEY = 'django-insecure-^&(#v2#gc*!vww(t!xpp7g=k2+)u)8e_$(3-ipxvichzyyl(dk
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# ------------------------------------------------
+# # connected to railway and domain
+# to locally develop, comment this out
+# ------------------------------------------------
 ALLOWED_HOSTS = ['https://shamelesis.com',
                  'shamelesis.com',
                  'ecom2-production-2c2f.up.railway.app',
                  'https://ecom2-production-2c2f.up.railway.app']
 CSRF_TRUSTED_ORIGINS = ['https://shamelesis.com',
                         'https://ecom2-production-2c2f.up.railway.app']
+# -------------------- END -----------------------
 
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -45,6 +50,18 @@ INSTALLED_APPS = [
     'paypal.standard.ipn',
     'cloudinary',
     'cloudinary_storage',
+    'blog',
+    'django_ckeditor_5',
+
+    # google authentication
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+
+    # time system, to organize time
+    'time_sys',
 ]
 
 MIDDLEWARE = [
@@ -56,7 +73,11 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+
+    # google authentication
+    "allauth.account.middleware.AccountMiddleware",
 ]
+
 
 ROOT_URLCONF = 'ecom2.urls'
 
@@ -71,6 +92,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'cart.context_processors.cart',
+                'store.context_processors.base_breadcrumbs',
             ],
         },
     },
@@ -79,27 +101,32 @@ TEMPLATES = [
 WSGI_APPLICATION = 'ecom2.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
+# ------------------------------------------------
+# online Database (railway)
+# ------------------------------------------------
+https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+online database
 DATABASES = {
     'default': {
-        # 'ENGINE': 'django.db.backends.sqlite3',
-        # 'NAME': BASE_DIR / 'db.sqlite3',
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'railway',
-        # 'NAME': 'neondb',
         'USER': 'postgres',
-        #'neondb_owner',
         'PASSWORD': os.environ['DB_PASSWORD'],
-        # we use environmental password
-        # 'HOST': 'ep-twilight-king-a4kc1oo0-pooler.us-east-1.aws.neon.tech',
+         #// we use environmental password
         'HOST': 'shuttle.proxy.rlwy.net',
         'PORT': '18926',
-        # 'PORT': '5432',
     }
 }
-
+# ------------------------------------------------
+# local Database
+# ------------------------------------------------
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+# -------------------- END -----------------------
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -136,19 +163,68 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
-STATICFILES_DIRS = ['static/']
+STATICFILES_DIRS = [BASE_DIR / 'static/',
+                    BASE_DIR / 'store' / 'static',]
 
+
+
+
+# Cloudinary setup
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.environ['CLOUDINARY_CLOUD_NAME'],
     'API_KEY': os.environ['CLOUDINARY_API_KEY'],
     'API_SECRET': os.environ['CLOUDINARY_API_SECRET'],
 }
-
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
+
+
+# CKEditor config
+CKEDITOR_UPLOAD_PATH = "uploads/"  # will be a virtual path, not actual local
+CKEDITOR_IMAGE_BACKEND = "pillow"
+CKEDITOR_ALLOW_NONIMAGE_FILES = False
+CKEDITOR_RESTRICT_BY_USER = True
+
+
+# CKEditor 5 config
+CKEDITOR_5_CONFIGS = {
+    'default': {
+        'toolbar': [
+            'heading', '|',
+            'bold', 'italic', 'underline', 'strikethrough', '|',
+            'link', 'blockQuote', 'code', 'codeBlock', '|',
+            'bulletedList', 'numberedList', 'todoList', '|',
+            'outdent', 'indent', '|',
+            'mediaEmbed', 'insertTable', '|',
+            'undo', 'redo', '|',
+            'highlight', 'alignment', 'fontColor', 'fontBackgroundColor',
+            'fontSize', 'fontFamily', '|',
+            'horizontalLine', 'specialCharacters', 'pageBreak', 'findAndReplace',
+        ],
+        'image': {
+            'toolbar': [
+                'imageTextAlternative',
+                'toggleImageCaption',
+                'imageStyle:inline',
+                'imageStyle:block',
+                'imageStyle:side',
+                'linkImage',
+                'resizeImage'
+            ]
+        },
+    }
+}
+
+CKEDITOR_UPLOAD_SLUGIFY_FILENAME = False
+CKEDITOR_5_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+#CKEDITOR_5_FILE_STORAGE = "django.core.files.storage.DefaultStorage"
+
+
 MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 # MEDIA_URL = 'media/'
 # MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+#// No MEDIA_ROOT needed due to Cloudinary
 
 # whitenoise static stuff
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
@@ -163,3 +239,24 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # set sandbox to true
 PAYPAL_TEST = True
 PAYPAL_RECEIVER_EMAIL = 'business@shamelesis.com'
+
+
+#----------------------------------------------------
+# Google Authentication
+#----------------------------------------------------
+SITE_ID = 1
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',  # default
+    'allauth.account.auth_backends.AuthenticationBackend',  # allauth
+)
+LOGIN_REDIRECT_URL = '/'
+ACCOUNT_LOGOUT_REDIRECT_URL = '/'
+#----------------------------------------------------
+# remove email, username, password login
+#----------------------------------------------------
+ACCOUNT_LOGIN_METHODS = {"email"}  # replaces ACCOUNT_AUTHENTICATION_METHOD
+ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*"]  # replaces other 3
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+
+# This removes email/password login options entirely from login form
+SOCIALACCOUNT_ADAPTER = 'store.adapters.CustomSocialAccountAdapter'

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <div class="row">
+
+        {% for blogpost in blogposts %}
+        <div class="col-md-3">
+            <div class="card h-100">
+
+                <!-- Product image-->
+                <img class="card-img-top" src="{{ blogpost.image.url }}" alt="..." />
+                <!-- Product details-->
+                <div class="card-body p-4">
+                    <div class="text-center">
+                        <!-- Product name-->
+                        <h3 class="fw-bolder">{{ blogpost.title }}</h3>
+                        <!-- Product price-->
+                        <p>${{ blogpost.date_created }}</p>
+                    </div>
+                </div>
+                <!-- Product actions-->
+                <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                    <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="{% url 'view_post' blogpost.id %}">View Post</a></div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+</div>
+<br/><br/>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'nav_dairy.html' %}
+{% block title %}
+Setting Page
+{% endblock %}
+{% block js %}
+<style>
+   .text_dairy pre{
+      font-size:16px;
+      font-family: "Arial";
+   }
+   .text_d_title{
+      font-size:12px;
+   }
+</style>
+<script type="text/javascript">
+   document.getElementById("dm2").style.backgroundColor = "#fff";
+   document.getElementById("dm2").firstChild.style.color = "#000";
+   document.getElementById("dm2").firstChild.style.fontWeight = "bold"
+</script>
+{% endblock %}
+{% block content %}
+<div class="col-12 text-end pe-2">
+   <a href="{{ url_for('download_page', i='dairy') }}">⇩</a>
+</div>
+<form id="my_form" method="POST" class="form-register">
+{{ form.hidden_tag() }}
+<div class="container-fluid px-2">
+{% for record in records %}
+<div class="row border mb-2">
+   <div class="col-4 text_d_title">Date: {{ record.date[5:11] }}</div>
+   <div class="col-6 text_d_title">{{ record.mood_type }}: {{ record.degree }}</div>
+   <div class="col-2 text_d_title text-center">
+      <input style="display:none" name="del_id" id="ch{{ record.id }}" type="radio" value="{{ record.id }}">
+      <a href="{{ url_for('dm_dairy_edit_page', idk = record.id) }}">edit</a>
+   </div>
+
+   <div class="col-12 mt-2 text_dairy"><pre>{{ record.event }}</pre></div>
+</div>
+{% endfor %}
+
+
+</div>
+</form>
+{% endblock %}

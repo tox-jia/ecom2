@@ -1,0 +1,56 @@
+{% extends 'nav_note.html' %}
+{% block title %}
+Edit
+{% endblock %}
+{% block content %}
+<form method="POST" class="form-register">
+{{ form.hidden_tag() }}
+<div class="container-fluid p-0">
+    <div class="row">
+        <div class="col-12">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Type</th>
+                  <th>Sub</th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for type in types %}
+               <tr>
+                        <td><input type="radio" id="{{ type.sub_type }}" name="sub_type" checked value="{{type.type}}-{{type.sub_type}}"></td>
+                        <td><label for="{{ type.sub_type }}">{{ type.sub_type }}</label></td>
+                        <td style="color:#aaa"><label for="{{ type.sub_type }}">{{ type.type }}</label></td>
+               </tr>
+               {% endfor %}
+              </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="container text-start">
+    <div class="row">
+        <div class="col-12 pt-1 pb-1 text-start">
+            Title: <input id="title" type="text" name="title" placeholder="Title">
+        </div>
+       <script type="text/javascript">
+            document.getElementById("title").value = "{{ record.title }}";
+            document.getElementById("{{record.sub_type}}").checked = true;
+        </script>
+
+        <div class="col-12 text-start pt-2">
+        Content: <textarea id="text_box" class="form-control" name="content" rows="10" >{{ record.content }}</textarea>
+        </div>
+
+
+        <div class="col-12 pt-3">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+
+    </div>
+</div>
+</form>
+
+{% endblock %}

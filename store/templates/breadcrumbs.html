@@ -1,0 +1,11 @@
+<div aria-label="breadcrumb" class="py-2">
+     <a class="unstyle_a_tag breadcrumbs" href="{% url 'home' %}">Home</a>
+    <span id="home_slash"> /</span>
+    {% for crumb in breadcrumbs %}
+    {% if not forloop.last %}
+    <a class="unstyle_a_tag breadcrumbs" href="{{ crumb.url }}">{{ crumb.name }}</a> /
+    {% else %}
+    <a class="unstyle_a_tag" href="{{ crumb.url }}">{{ crumb.name }}</a>
+    {% endif %}
+    {% endfor %}
+</div>

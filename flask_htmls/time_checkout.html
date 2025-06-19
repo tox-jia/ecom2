@@ -1,0 +1,118 @@
+{% extends 'nav_time.html' %}
+{% block title %}
+Time_checkout
+{% endblock %}
+
+{% block content %}
+{{test}}
+<form method="POST" class="form-register">
+    {{ form.hidden_tag() }}
+
+
+<div class="container-fluid text-center border-bottom mt-1 pb-1 mb-2" >
+    <div class="row" >
+        <div class="col-12 text-center">
+            <div class="ms-2" style="float:left;">Manually Change Time:</div>
+            <div class="col-6 form-check form-switch ms-3" style="float:left">
+                    <input class="form-check-input" type="checkbox" name="time_switch" id="switch" value="5" onclick="myFunction()"/>
+            </div>
+        </div>
+        <div class="col-12 pt-2 pb-1" id="calendar" style="display:none;">
+            Input time can't be earlier than <strong>{{last}}</strong>
+            <br>
+            <input type="datetime-local" name="time_correction" value="{{cal}}">
+        </div>
+    </div>
+</div>
+
+
+<div class="container-fluid p-0">
+    <div class="row ps-2" style="font-weight:bold;color:#999">
+        <div class="col-4 pe-0 title_time">Unproductive</div>
+        <div class="col-4 pe-0 title_time">Productive</div>
+        <div class="col-4 pe-0 title_time">Sleep & Rest</div>
+    </div>
+<div class="row mb-2 ps-2">
+
+    <div class="col-4 pe-0">
+        {% for tag in tags %}
+        {% if tag.type=="UN" %}
+            <div class="col text_d_title pt-1">
+               <input type="radio" id="{{ tag.tag }}" name="time_tag" value="{{ tag.tag }}-{{ tag.type }}">
+               <label for="{{ tag.tag }}">{{tag.tag}}</label>
+           </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+    <div class="col-4 pe-0">
+        {% for tag in tags %}
+        {% if tag.type=="PR" %}
+            <div class="col text_d_title pt-1">
+               <input type="radio" id="{{ tag.tag }}" name="time_tag" value="{{ tag.tag }}-{{ tag.type }}">
+               <label for="{{ tag.tag }}">{{tag.tag}}</label>
+           </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+    <div class="col-4 pe-0">
+        {% for tag in tags %}
+        {% if tag.type=="SL" %}
+            <div class="col text_d_title pt-1">
+               <input type="radio" id="{{ tag.tag }}" name="time_tag" value="{{ tag.tag }}-{{ tag.type }}">
+               <label for="{{ tag.tag }}">{{tag.tag}}</label>
+           </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+</div>
+</div>
+
+
+
+
+
+
+<div style="height:100px">
+
+</div>
+
+
+
+
+<div class="container text-center" >
+    <div class="row">
+        <div class="col-12 pt-5" style="position: fixed; right:0px; bottom:20px; z-index:100">
+            <input type="hidden" name="submit_start" value="1">
+            {{ form.submit(class="btn btn-primary", value="CheckOut", style="font-size:20px") }}
+        </div>
+
+    </div>
+</div>
+
+
+</form>
+
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+   document.getElementById("time1").style.backgroundColor = "#fff";
+   document.getElementById("time1").firstChild.style.color = "#000";
+   document.getElementById("time1").firstChild.style.fontWeight = "bold"
+
+    function myFunction() {
+  // Get the checkbox
+        var checkBox = document.getElementById("switch");
+  // Get the output text
+        var text = document.getElementById("calendar");
+
+  // If the checkbox is checked, display the output text
+  if (checkBox.checked == true){
+    checkBox.value = 1
+    text.style.display = "block";
+  } else {
+    text.style.display = "none";
+  }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'nav_english.html' %}
+{% block title %}
+Note Input
+{% endblock %}
+{% block content %}
+<form method="POST" class="form-form-signin">
+   {{ form.hidden_tag() }}
+
+   <div class="container-fluid p-0 text-center">
+      <div class="row px-1 mx-1 mt-2">
+         <div class="col-12 py-1 text-start">
+            <label for="" class="fw-bold">{{ record.book }}</label>
+         </div>
+
+          <div class="col-12 text-start pt-3">
+             {% autoescape false %}
+             <strong>Sentence:</strong> <textarea class="form-control" id="sentence" autocomplete="off" name="sentence" rows="5">{{ record.sentence }}</textarea>
+          </div>
+         {% endautoescape %}
+          <div class="col-12 py-2 text-start">
+             <button type="submit" class="btn btn-primary">Sumbit</button>
+          </div>
+      </div>
+   </div>
+
+</form>
+<script type="text/javascript">
+    document.getElementById("sentence").value = "{{ record.sentence }}";
+
+</script>
+{% endblock %}

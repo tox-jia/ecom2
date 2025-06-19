@@ -1,0 +1,120 @@
+{% extends 'nav_people.html' %}
+{% block title %}
+Relationship Input
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+   document.getElementById("ppl1").style.backgroundColor = "#fff";
+   document.getElementById("ppl1").firstChild.style.color = "#000";
+   document.getElementById("ppl1").firstChild.style.fontWeight = "bold"
+</script>
+{% endblock %}
+
+{% block content %}
+<form method="POST" class="form-register">
+{{ form.hidden_tag() }}
+
+<div class="container text-start">
+
+    <div class="row">
+
+        <div class="col-12 py-2 text-start">
+            <div>Relation Type:</div>
+        {% for type in types %}
+        <div class="text-start" style="margin-right:15px; float:left">
+                <input type="radio" checked id="{{ type.relation_type }}" name="relation_type" value="{{ type.relation_type }}">
+                <label for="{{ type.relation_type }}">{{ type.relation_type }}</label>
+        </div>
+        {% endfor %}
+        </div>
+
+        <div class="col-12 pt-1 pb-1">
+           <input type="text" name="name" placeholder="*Name">
+        </div>
+
+        <div class="col-12 pt-1 pb-1">
+            <input type="text" name="country" placeholder="Country">
+        </div>
+
+        <div class="col py-2">
+            <input id="io_positive" type="radio" name="onoffline" value="1">
+            <label for="io_positive">online</label>
+            <input id="io_negative" type="radio" checked  name="onoffline" value="0">
+            <label for="io_negative">offline</label>
+        </div>
+        <div class="col-12"></div>
+        <div class="col py-2">
+            Birthday: <input type="date" name="birthday">
+        </div>
+
+        <div class="col-12 text-start py-2">
+        <textarea class="form-control" name="comment" rows="2" placeholder="*Comment"></textarea>
+        </div>
+
+        <div class="col-12">
+            <span>Like: </span>
+            {% for i in range(-2,3) %}
+            <input id="x{{ i }}" checked type="radio" name="degree" value="{{ i }}">
+            <label class="pe-2" for="x{{ i }}">{{ i }}</label>
+            {% endfor %}
+        </div>
+
+
+
+        <div class="col-12">
+            <div style="width: 50px; float:left">
+                <span>EQ:</span>
+            </div>
+            <div style="float:left">
+                <input id="EQ-A" type="radio" name="eq" value="A">
+                <label class="pe-3" for="EQ-A">A</label>
+                <input id="EQ-B" checked type="radio" name="eq" value="B">
+                <label class="pe-3" for="EQ-B">B</label>
+                <input id="EQ-C" type="radio" name="eq" value="C">
+                <label class="pe-3" for="EQ-C">C</label>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div style="width: 50px; float:left">
+            <span>IQ:</span>
+
+            </div>
+            <div style="float:left">
+            <input id="IQ-A" type="radio" name="iq" value="A">
+            <label class="pe-3" for="IQ-A">A</label>
+            <input id="IQ-B" checked type="radio" name="iq" value="B">
+            <label class="pe-3" for="IQ-B">B</label>
+            <input id="IQ-C" type="radio" name="iq" value="C">
+            <label class="pe-3" for="IQ-C">C</label>
+            </div>
+        </div>
+
+        <div class="col-12 py-2">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+
+    </div>
+</div>
+
+
+<div class="container-fluid text-center border border-secondary mt-3" style="width:400px">
+    <div class="row text-center">
+        <div class="col-12 text-danger pt-3">If the check-out time is not Now, manually input the time. Otherwise leave this calendar blank.</div>
+        <div class="col-12">
+            <h3>Timezone: {{ timezone[4:10] }}</h3>
+        </div>
+
+        <div class="col-12 pt-1 pb-3">
+
+            <input type="datetime-local" name="time_correction">
+        </div>
+    </div>
+</div>
+
+</form>
+
+{% endblock %}
+
+

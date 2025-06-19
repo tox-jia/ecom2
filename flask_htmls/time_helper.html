@@ -1,0 +1,48 @@
+{% extends 'nav_time.html' %}
+{% block title %}
+Helper
+{% endblock %}
+{% block content %}
+<div class="container-fluid text-center p-0">
+   <div class="row p-2">
+      <div class="col-12">
+         <div class="card mx-auto" style="width: 25rem;">
+            <div class="card-body">
+               <h5 class="card-title text-start">Step 1</h5>
+               <p class="card-text text-start">Go to "Setting" page to create some tags for your time expenditure.</p>
+               <a href="{{ url_for('settings_page') }}" class="btn btn-primary">Go to "Setting"</a>
+            </div>
+         </div>
+      </div>
+      <div class="col-12">
+         <div class="card mx-auto" style="width: 25rem;">
+            <div class="card-body">
+               <h5 class="card-title text-start">Step 2</h5>
+               <p class="card-text text-start">Go to "Check Out" Page to start your time management journey.
+                  Select a tag. Always remember, whenever you click "check out" button, it means this period of time with the tag is ended.</p>
+               <a href="{{ url_for('checkin_page') }}" class="btn btn-primary">Go to "Check Out"</a>
+            </div>
+         </div>
+      </div>
+      <div class="col-12">
+         <div class="card mx-auto" style="width: 25rem;">
+            <div class="card-body">
+               <h5 class="card-title text-start">Step 3</h5>
+               <p class="card-text text-start">Go to "Records" Page to check your time records.</p>
+               <a href="{{ url_for('records_page') }}" class="btn btn-primary">Go to "Records"</a>
+            </div>
+         </div>
+      </div>
+      <div class="col-12">
+         <div class="card mx-auto" style="width: 25rem;">
+            <div class="card-body">
+               <h5 class="card-title text-start">Step 4</h5>
+               <p class="card-text text-start">Go to "Report" Page to check your time reports. Every end of the month, a
+               report for that month will be automatically generated. </p>
+               <a href="{{ url_for('report_page') }}" class="btn btn-primary">Go to "Report"</a>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+{% endblock %}

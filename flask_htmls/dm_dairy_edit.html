@@ -1,0 +1,64 @@
+{% extends 'nav_dairy.html' %}
+
+
+
+{% block title %}
+Dairy Page
+{% endblock %}
+
+{% block js %}
+<style>
+    .btn_type{
+        border-style:none;
+        background-color: #0df;
+        font-size: 12px;
+    }
+
+</style>
+<script type="text/javascript">
+   document.getElementById("dm1").style.backgroundColor = "#fff";
+   document.getElementById("dm1").firstChild.style.color = "#000";
+   document.getElementById("dm1").firstChild.style.fontWeight = "bold"
+</script>
+{% endblock %}
+
+
+{% block content %}
+<form method="POST" class="form-register">
+    {{ form.hidden_tag() }}
+
+
+<div class="container text-center">
+    <div class="row">
+        {% for type in types %}
+        <div class="col-3 text-start mt-1 ps-1">
+            <input id="{{ type.mood_type }}" checked type="radio" name="mood_type" value="{{ type.mood_type }}">
+            <button class="btn_type" type="button"><label for="{{ type.mood_type }}">{{ type.mood_type }}</label></button>
+        </div>
+        {% endfor %}
+
+
+        <div class="col-12"></div>
+
+        {% for i in range(5) %}
+        <div class="col pt-3 pb-2">
+            <input id="d{{ i+1 }}" type="radio" checked name="degree" value="{{ i+1 }}">
+            <label for="d{{ i+1 }}">{{ i+1 }}</label>
+        </div>
+        {% endfor %}
+
+        <div class="col-12 text-start pt-2">
+        <textarea class="form-control" name="event" rows="10" placeholder="text">{{ record.event }}</textarea>
+        </div>
+
+        <div class="col-12 pt-3">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </div>
+</div>
+    <script type="text/javascript">
+            document.getElementById("{{record.mood_type}}").value = "{{ record.mood_type }}";
+            document.getElementById("d{{record.degree}}").checked = true;
+        </script>
+</form>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends 'nav_note.html' %}
+{% block title %}
+Note Settings
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+   document.getElementById("note4").style.backgroundColor = "#fff";
+   document.getElementById("note4").firstChild.style.color = "#000";
+   document.getElementById("note4").firstChild.style.fontWeight = "bold"
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0 text-center"  style="font-size:12px">
+<form method="POST" class="form">
+   <div class="row border border-dark px-1 mx-1 mt-2">
+      <div class="col-4">
+         {{ form.hidden_tag() }}
+         <table class="table">
+            <thead>
+               <tr>
+                  <th class="text-start">Type</th>
+                  <th></th>
+               </tr>
+            </thead>
+            <tbody>
+               <tr>
+                  <td><input checked type="radio" name="type" id ="Python" value="Python"></td>
+                  <td class="text-start"><label for="Python">Python</label></td>
+               </tr>
+               <tr>
+                  <td><input type="radio" name="type" id ="HTML" value="HTML"></td>
+                  <td class="text-start"><label for="HTML">HTML</label></td>
+               </tr>
+
+            </tbody>
+         </table>
+      </div>
+      <div class="col">
+         <table class="table">
+            <thead>
+               <tr>
+                  <th class="text-start">Sub Type</th>
+               </tr>
+            </thead>
+            <tbody>
+               <tr>
+                  <td>{{ form.sub_type(class="form-check", placeholder="Sub_type") }}</td>
+               </tr>
+            </tbody>
+         </table>
+      </div>
+      <div class="col-12 pb-2">
+         {{ form.submit(class="btn-sm btn-block btn-primary") }}</td>
+      </div>
+
+   </div>
+</form>
+</div>
+{% if types.first() %}
+<div class="container-fluid p-0">
+   <form method="POST" class="form-register">
+      {{ form2.hidden_tag() }}
+      <div class="row row border border-dark px-1 mx-1 mt-2 pb-2">
+         <div class="col-12 px-1">
+            <table class="table">
+               <thead>
+                  <tr>
+                     <th></th>
+                     <th>Type</th>
+                     <th>Sub Type</th>
+                  </tr>
+               </thead>
+               <tbody>
+                  {% for type in types %}
+                  <tr>
+                     <td><input type="radio" id="{{ type.sub_type }}" name="del_selected" value="{{ type.sub_type }}"></td>
+                     <td class="text-start">{{ type.sub_type }}</td>
+                     <td style="color:#aaa">{{ type.type }}</td>
+                  </tr>
+                  {% endfor %}
+               </tbody>
+            </table>
+         </div>
+         <div class="col-12 pb-5">
+            <input type="hidden" name="submit" value="1">
+            {{ form2.submit(class="btn btn-block btn-danger", value="Delete Type") }}
+         </div>
+      </div>
+   </form>
+</div>
+{% endif %}
+{% endblock %}

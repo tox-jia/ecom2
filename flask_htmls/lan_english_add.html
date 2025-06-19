@@ -1,0 +1,83 @@
+{% extends 'nav_english.html' %}
+{% block title %}
+Input English
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+   document.getElementById("lan3").style.backgroundColor = "#fff";
+   document.getElementById("lan3").firstChild.style.color = "#000";
+   document.getElementById("lan3").firstChild.style.fontWeight = "bold"
+
+</script>
+{% endblock %}
+
+{% block content %}
+
+<form method="POST" class="form-form-signin">
+   {{ form.hidden_tag() }}
+   <div class="container-fluid p-0 text-center">
+      <div class="row px-1 mx-1 mt-2">
+         {% if new_id%10 == 0 %}
+            <div class="col-12 text-start" style="color:#f00; font-size:30px; font-weight:bold">No.{{ new_id }}</div>
+         {% else %}
+            <div class="col-12 text-start">No.{{ new_id }}</div>
+         {% endif %}
+
+         <div class="col-6 py-1 text-start">
+            <input class="form-control mt-1" name="eng" id="eng" placeholder="Eng 1.0">
+         </div>
+         <div class="col-6 py-1 text-start">
+            <input class="form-control mt-1" name="eng2" id="eng2" placeholder="Eng 2.0">
+         </div>
+         <!--<div class="col-4 py-1 text-start">
+            <input class="form-control mt-1" name="eng2_a" id="eng2-a" placeholder="Eng 1.5">
+         </div>-->
+         {% for t in type %}
+         <div class="col text-start form-check-group pt-1">
+            <label class="form-check-label" for="flexCheckDefault{{t.type}}" style="font-size:12px">
+               {{ t.type }}</label>
+            <br>
+            <input class="" type="checkbox" name="type" value="{{t.type}}" onclick="PutText{{t.id}}()" id="flexCheckDefault{{t.type}}">
+         </div>
+         {% if t.type[-1] == '.' %}
+         <script type="text/javascript">
+            function PutText{{t.id}}() {
+               if (document.getElementById('flexCheckDefault{{t.type}}').checked) {
+                  document.getElementById("meaning").value += "{{t.type}} \n1. " + "\n" +"- " + "\n\n" + "\n";
+               }
+
+            }
+         {% endif %}
+
+         </script>
+         {% endfor %}
+
+          <div class="col-12 text-start pt-2">
+             <textarea class="form-control" id="meaning" name="meaning" rows="20"></textarea>
+          </div>
+          <div class="col-12 py-2 text-start">
+             <div class="d-grid">
+             <button type="submit" id="submit" class="mt-2 btn btn-primary">Add</button>
+                </div>
+          </div>
+      </div>
+   </div>
+
+</form>
+
+<script type="text/javascript">
+   var input = document.getElementById('eng');
+   input.focus();
+   input.select();
+
+
+   document.onkeyup = function(e) {
+     if (e.ctrlKey && e.which == 13) { //ctr +b
+       document.getElementById("submit").click();
+     }
+   };
+
+</script>
+
+{% endblock %}

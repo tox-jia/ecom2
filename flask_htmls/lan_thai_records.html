@@ -1,0 +1,54 @@
+{% extends 'nav_thai.html' %}
+{% block title %}
+Records
+{% endblock %}
+{% block js %}
+<script type="text/javascript">
+   document.getElementById("lan22").style.backgroundColor = "#fff";
+   document.getElementById("lan22").firstChild.style.color = "#000";
+   document.getElementById("lan22").firstChild.style.fontWeight = "bold"
+</script>
+{% endblock %}
+
+
+{% block content %}
+<div class="col-12 text-end pe-2">
+   <a href="{{ url_for('download_page', i='thai') }}">⇩</a>
+</div>
+<form id="my_form" method="POST" class="form-register">
+{{ form2.hidden_tag() }}
+<div class="container-fluid p-0 pt-2">
+   {% for record in records %}
+<div class="row border mt-2">
+   <div class="col-12 ps-4 pt-2">
+      <a href="{{ url_for('lan_thai_edit_page', idk = record.id) }}">
+         <button type="button"
+                 style="border:none;
+                 background-color: #4CAF50;
+                 color: white;
+                 font-weight:bold;
+                 font-size: 20px;"
+         >{{ record.lan2 }}</button>
+      </a>
+      <span style="color:#666; font-size:14px;">{{ record.lan }} ({{ record.type.replace('-','  ') }})</span>
+   </div>
+
+   <div class="col">
+      <input style="display:none" name="del_id" id="ch{{ record.id }}" type="radio" value="{{ record.id }}">
+      <a style="display:none" href="javascript:{}" onclick="
+                  document.getElementById('ch{{ record.id }}').checked = true;
+                  document.getElementById('my_form').submit();
+                  ">
+         delete
+      </a>
+   </div>
+   <div class="col-12 mt-3 ps-5">
+      <pre style="font-family:'arial';color:#555; font-size:16px">
+      {{ record.meaning }}
+         </pre>
+   </div>
+</div>
+         {% endfor %}
+</div>
+</form>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+
+{% block nav %}
+<div class="container-fluid p-0 m-0">
+    <div class="row border-bottom border-dark" style="height:40px">
+        <div id="dm1" class="col-3 text-center pt-2 border-dark border-end" style="background-color: #aaa"><a href="{{ url_for('dm_dairy_input_page') }}" style="color: #fff">Diary</a></div>
+        <div id="dm2" class="col-3 text-center pt-2 border-dark border-end" style="background-color: #aaa"><a href="{{ url_for('dm_dairy_records_page') }}" style="color: #fff">Records</a></div>
+        <div id="dm3" class="col-3 text-center pt-2 border-dark border-end" style="background-color: #aaa"><a href="{{ url_for('dm_mood_input_page') }}" style="color: #fff">Mood</a></div>
+        <div id="dm4" class="col-3 text-center pt-2 border-dark border-end" style="background-color: #aaa"><a href="{{ url_for('note_tasks_page') }}" style="color: #fff">Tasks</a></div>
+    </div>
+</div>
+{% endblock %}
+
