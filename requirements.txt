@@ -1,9 +1,15 @@
 asgiref==3.8.1
 certifi==2025.4.26
+cffi==1.17.1
 charset-normalizer==3.4.2
 cloudinary==1.44.0
+cryptography==45.0.4
 Django==5.2
+django-allauth==65.9.0
+django-appconf==1.1.0
+django-ckeditor-5==0.2.18
 django-cloudinary-storage==0.3.0
+django-js-asset==3.1.2
 django-paypal==2.1
 gunicorn==23.0.0
 idna==3.10
@@ -11,6 +17,8 @@ packaging==25.0
 pillow==11.2.1
 psycopg2==2.9.10
 psycopg2-binary==2.9.10
+pycparser==2.22
+PyJWT==2.10.1
 python-dotenv==1.1.0
 pytz==2025.2
 requests==2.32.3
