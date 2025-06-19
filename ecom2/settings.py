@@ -102,10 +102,10 @@ WSGI_APPLICATION = 'ecom2.wsgi.application'
 
 
 # ------------------------------------------------
-# online Database (railway)
+# [Database 1] online (railway)
 # ------------------------------------------------
-https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-online database
+# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+# online database
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -118,7 +118,7 @@ DATABASES = {
     }
 }
 # ------------------------------------------------
-# local Database
+# [Database 2] Local Database
 # ------------------------------------------------
 # DATABASES = {
 #     'default': {
