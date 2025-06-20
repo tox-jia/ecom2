@@ -7,48 +7,27 @@
           {% csrf_token %}
           <input type="hidden" name="form_type" value="settings_form">
          <table class="table">
-            <thead>
-               <tr>
-                  <th class="text-start">Type</th>
-                  <th></th>
-               </tr>
-            </thead>
+<!--            <thead>-->
+<!--               <tr>-->
+<!--                  <th></th>-->
+<!--                  <th></th>-->
+<!--                  <th></th>-->
+<!--               </tr>-->
+<!--            </thead>-->
             <tbody>
                <tr>
-                  <td><input checked type="radio" name="setting_type" id ="UN" value="UN"></td>
-                  <td class="text-start"><label for="UN">Un = Unproductive</label></td>
-               </tr>
-               <tr>
-                  <td><input type="radio" name="setting_type" id ="PR" value="PR"></td>
-                  <td class="text-start"><label for="PR">PR = Productive</label></td>
-               </tr>
-               <tr>
-                  <td><input type="radio" name="setting_type" id ="SL" value="SL"></td>
-                  <td class="text-start"><label for="SL">SL = Sleep & Rest</label></td>
+                  <td class="text-start"><input checked type="radio" name="setting_type" id ="UN" value="UN">&nbsp;&nbsp;NU</td>
+                  <td class="text-start"><input type="radio" name="setting_type" id ="PR" value="PR">&nbsp;&nbsp;PR</td>
+                  <td class="text-start"><input type="radio" name="setting_type" id ="RS" value="RS">&nbsp;&nbsp;RS</td>
                </tr>
             </tbody>
          </table>
       </div>
-      <div class="col-12">
-         <table class="table">
-            <thead>
-               <tr>
-                  <th class="text-start">Tag</th>
-               </tr>
-            </thead>
-            <tbody>
-               <tr>
-                  <td>
-                      {{ form.setting_tag }}
-                  </td>
-               </tr>
-               <tr>
-                  <td>
-                      <button type="submit" class="btn btn-secondary">Submit</button>
-                  </td>
-               </tr>
-         </table>
-      </div>
+      <div class="col-5 pe-3 text-start">{{ form.setting_tag }}</div>
+      <div class="col-4"><button type="submit" class="btn btn-primary mb-2">Submit</button></div>
+   </div>
+   <div class="row">
+
    </div>
 </form>
 </div>

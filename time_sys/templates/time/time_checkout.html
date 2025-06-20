@@ -3,6 +3,43 @@
 {% load tz %}
 <form method="POST" class="form-register">
 {% csrf_token %}
+<div class="container-fluid px-2" style="font-size:12px">
+   <div class="row">
+
+    <div class="col-12">
+        <table class="table border border-1">
+            <thead>
+               <tr>
+                  <th scope="col">{{ timezone }}</th>
+                  <th scope="col">Duration</th>
+                  <th scope="col">Tag</th>
+                  <th scope="col">Type</th>
+                  <th scope="col"></th>
+               </tr>
+            </thead>
+            <tbody>
+               {% for record in records %}
+               <tr>
+                  {% timezone request.user.profile.timezone %}
+                  <td>{{ record.end|date:"Y.m.d | H:i:s" }}</td>
+                  {% endtimezone %}
+                  <td>{{ record.formatted_duration }}</td>
+                  <td>{{ record.tag }}</td>
+                  <td>{{ record.type }}</td>
+                  <td>
+                     <input style="display:none" name="del_id" id="ch{{ record.id }}" type="radio" value="{{ record.id }}">
+                     <a href="javascript:{}" onclick="
+                           document.getElementById('ch{{ record.id }}').checked = true;
+                           document.getElementById('my_form').submit();
+                           ">x</a>
+                  </td>
+               </tr>
+               {% endfor %}
+            </tbody>
+         </table>
+    </div>
+   </div>
+</div>
 
 
 <div class="container-fluid text-center border-bottom mt-1 pb-1 mb-2" >

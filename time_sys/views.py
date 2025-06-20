@@ -86,8 +86,8 @@ def time_checkout(request):
                 # ----------------------------------#
                 # End #
                 # ------------ Start ---------------#
-            messages.success(request, "Time checkout successfully.")
-            return redirect('time_records')
+            # messages.success(request, "Time checkout successfully.")
+            return redirect('time_checkout')
 
     else:
         TimeRecord.objects.create(
@@ -104,13 +104,15 @@ def time_checkout(request):
             for err in errs:
                 messages.error(request, f'{field}: {err}')
 
+    records = TimeRecord.objects.order_by('-id')[:1]
+
     context = {
         'form': form,
         'tags': tags,
-        'record': record_qs,
         'timezone': timezone_display(request.user.profile),
         'now': this_utc,
         'last': last_utc if record_qs.exists() else None,
+        'records': records
     }
     return render(request, 'time/time_checkout.html', context)
 

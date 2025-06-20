@@ -22,16 +22,41 @@ SECRET_KEY = 'django-insecure-^&(#v2#gc*!vww(t!xpp7g=k2+)u)8e_$(3-ipxvichzyyl(dk
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+
 # ------------------------------------------------
-# # connected to railway and domain
-# to locally develop, comment this out
+# [Database 1] online (railway + database)
 # ------------------------------------------------
+## connected to railway and domain
 ALLOWED_HOSTS = ['https://shamelesis.com',
                  'shamelesis.com',
                  'ecom2-production-2c2f.up.railway.app',
                  'https://ecom2-production-2c2f.up.railway.app']
 CSRF_TRUSTED_ORIGINS = ['https://shamelesis.com',
                         'https://ecom2-production-2c2f.up.railway.app']
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'railway',
+        'USER': 'postgres',
+        'PASSWORD': os.environ['DB_PASSWORD'],
+         #// we use environmental password
+        'HOST': 'shuttle.proxy.rlwy.net',
+        'PORT': '18926',
+    }
+}
+# -------------------- END -----------------------
+
+
+# ------------------------------------------------
+# [Database 2] Local Database
+# ------------------------------------------------
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 # -------------------- END -----------------------
 
 
@@ -100,33 +125,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ecom2.wsgi.application'
 
-
-# ------------------------------------------------
-# [Database 1] online (railway)
-# ------------------------------------------------
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-# online database
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'railway',
-        'USER': 'postgres',
-        'PASSWORD': os.environ['DB_PASSWORD'],
-         #// we use environmental password
-        'HOST': 'shuttle.proxy.rlwy.net',
-        'PORT': '18926',
-    }
-}
-# ------------------------------------------------
-# [Database 2] Local Database
-# ------------------------------------------------
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-# -------------------- END -----------------------
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
