@@ -125,9 +125,6 @@ def time_checkout(request):
 
 
 
-
-
-
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def time_records(request):
@@ -142,6 +139,14 @@ def time_records(request):
         'timezone': timezone_display(request.user.profile),
     }
     return render(request, 'time/time_records.html', context)
+
+
+
+
+
+
+
+
 
 
 @login_required
@@ -160,11 +165,11 @@ def time_settings(request):
 
     if not tags.exists():
         tag_data = [
-            {"tag": "Sleep", "type": "SL"},
+            {"tag": "Sleep", "type": "RS"},
             {"tag": "Eating", "type": "UN"},
             {"tag": "Workout", "type": "PR"},
             {"tag": "Driving", "type": "UN"},
-            {"tag": "Nap", "type": "SL"},
+            {"tag": "Nap", "type": "RS"},
             {"tag": "Studying", "type": "PR"},
             {"tag": "Working", "type": "PR"},
             {"tag": "Shopping", "type": "UN"},
