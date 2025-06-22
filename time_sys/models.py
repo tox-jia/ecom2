@@ -36,15 +36,27 @@ class TimeTag(models.Model):
         return self.tag
 
 
+# class TimeReport(models.Model):
+#     year_date = models.CharField(max_length=255, blank=True, null=True)
+#     type_sl = models.CharField(max_length=255)
+#     percent_sl = models.CharField(max_length=255)
+#     type_pr = models.CharField(max_length=255)
+#     percent_pr = models.CharField(max_length=255)
+#     type_un = models.CharField(max_length=255)
+#     percent_un = models.CharField(max_length=255)
+#     detail = models.CharField(max_length=255)
+#
+#     def __str__(self):
+#         return f'Report {self.year_date}'
+
+
+
+
 class TimeReport(models.Model):
-    year_date = models.CharField(max_length=255, blank=True, null=True)
-    type_sl = models.CharField(max_length=255)
-    percent_sl = models.CharField(max_length=255)
-    type_pr = models.CharField(max_length=255)
-    percent_pr = models.CharField(max_length=255)
-    type_un = models.CharField(max_length=255)
-    percent_un = models.CharField(max_length=255)
-    detail = models.CharField(max_length=255)
+    year_month = models.CharField(max_length=7)  # e.g. "2025-06"
+    total_duration = models.IntegerField(default=0)
+    type_data = models.JSONField(default=dict)
+    tag_data = models.JSONField(default=dict)
 
     def __str__(self):
-        return f'Report {self.year_date}'
+        return f'{self.year_month}'

@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta
-from .models import TimeRecord
+from .models import TimeRecord, TimeReport
+from django.utils import timezone
+from collections import defaultdict
 import pytz
 
 def invertDictionary(d):
@@ -38,3 +40,47 @@ def month_jump(last_utc, this_utc):
         return result
     else:
         return False
+
+
+
+
+def generate_monthly_report():
+    from django.db.models.functions import TruncMonth
+    from django.db.models import Sum
+
+    now = timezone.now()
+    current_month_str = now.strftime("%Y-%m")
+
+    all_months = (
+        TimeRecord.objects.annotate(month=TruncMonth("end"))
+        .values_list("month", flat=True)
+        .distinct()
+    )
+
+    for month_start in sorted(all_months):
+        if not month_start:
+            continue
+
+        year_month = month_start.strftime("%Y-%m")
+        if year_month < current_month_str:
+            continue  # ✅ Skip only past months, not current or future
+
+        next_month = (month_start + timedelta(days=32)).replace(day=1)
+        records = TimeRecord.objects.filter(end__gte=month_start, end__lt=next_month)
+
+        total_duration = sum(r.duration for r in records)
+        tag_data = defaultdict(int)
+        type_data = defaultdict(int)
+
+        for r in records:
+            tag_data[r.tag] += r.duration
+            type_data[r.type] += r.duration
+
+        TimeReport.objects.update_or_create(
+            year_month=year_month,
+            defaults={
+                "total_duration": total_duration,
+                "tag_data": dict(tag_data),
+                "type_data": dict(type_data),
+            }
+        )

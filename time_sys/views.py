@@ -152,7 +152,46 @@ def time_records(request):
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def time_report(request):
-    return render(request, 'time/time_report.html', {})
+    from .utils import generate_monthly_report
+    generate_monthly_report()  # Ensure new reports are created if needed
+
+    reports = TimeReport.objects.all().order_by('-year_month')
+    report_data = []
+
+    for report in reports:
+        if report.total_duration:
+            tag_percent = {
+                tag: round(dur / report.total_duration * 100, 2)
+                for tag, dur in report.tag_data.items()
+            }
+            type_percent = {
+                typ: round(dur / report.total_duration * 100, 2)
+                for typ, dur in report.type_data.items()
+            }
+        else:
+            tag_percent = {}
+            type_percent = {}
+
+        report_data.append({
+            'month': report.year_month,
+            'total_duration': report.total_duration,
+            'tag_percent': tag_percent,
+            'type_percent': type_percent,
+        })
+
+    context = {
+        'report_data': report_data,
+        'timezone': timezone_display(request.user.profile),
+    }
+    return render(request, 'time/time_report.html', context)
+
+
+
+
+
+
+
+
 
 
 @login_required
