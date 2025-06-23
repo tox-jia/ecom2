@@ -1,11 +1,14 @@
 {% extends 'base.html' %}
 {% block content %}
 {% load tz %}
-<form method="POST" class="form-register">
+<!-- -------------------------------------- -->
+<!-- Del record -->
+<!-- -------------------------------------- -->
+<form method="POST" class="form-register" id="my_form">
 {% csrf_token %}
+<input type="hidden" name="form_type" value="del">
 <div class="container-fluid px-2" style="font-size:12px">
    <div class="row">
-
     <div class="col-12">
         <table class="table border border-1">
             <thead>
@@ -40,14 +43,25 @@
     </div>
    </div>
 </div>
+</form>
 
 
+
+
+<!-- -------------------------------------- -->
+<!-- Check Out -->
+<!-- -------------------------------------- -->
+<form method="POST" class="form-register">
+{% csrf_token %}
+<input type="hidden" name="form_type" value="checkout">
+
+<!-- Manual Time -------------------------------- -->
 <div class="container-fluid text-center border-bottom mt-1 pb-1 mb-2" >
     <div class="row" >
         <div class="col-12 text-center">
             <div class="ms-2" style="float:left;">Manually Change Time:</div>
             <div class="col-6 form-check form-switch ms-3" style="float:left">
-                    <input class="form-check-input" type="checkbox" name="time_switch" id="switch" value="TRUE" onclick="myFunction()"/>
+                    <input class="form-check-input" type="checkbox" name="time_switch" id="switch" value="1" onclick="myFunction()"/>
             </div>
         </div>
         {% timezone request.user.profile.timezone %}
@@ -61,8 +75,9 @@
         {% endtimezone %}
     </div>
 </div>
+<!-- END -------------------------------- -->
 
-
+<!-- Auto Time -------------------------------- -->
 <div class="container-fluid">
     <div class="row ps-2" style="font-weight:bold;color:#999">
         <div class="col-4 pe-0 title_time">Unproductive</div>
@@ -102,7 +117,7 @@
         </div>
     </div>
 </div>
-
+<!-- END -------------------------------- -->
 <div class="container text-center" >
     <div class="row">
 <!--        <div class="col-12 pt-0" style="position: fixed; right:0px; bottom:20px; z-index:100">-->
