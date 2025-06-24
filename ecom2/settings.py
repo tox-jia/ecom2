@@ -47,7 +47,7 @@ DATABASES = {
 }
 # -------------------- END -----------------------
 
-#
+
 # ## ------------------------------------------------
 # ## [Database 2] Local Database
 # ## ------------------------------------------------
@@ -87,6 +87,9 @@ INSTALLED_APPS = [
 
     # time system, to organize time
     'time_sys',
+
+    # show "Thousands separator"
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [

@@ -187,11 +187,11 @@ def time_report(request):
     for report in reports:
         if report.total_duration:
             tag_percent = {
-                tag: round(dur / report.total_duration * 100, 2)
+                tag: [round(dur / 60) , round(dur / report.total_duration * 100, 2)]
                 for tag, dur in report.tag_data.items()
             }
             type_percent = {
-                typ: round(dur / report.total_duration * 100, 2)
+                typ: [round(dur / 60), round(dur / report.total_duration * 100, 2)]
                 for typ, dur in report.type_data.items()
             }
         else:
@@ -204,6 +204,36 @@ def time_report(request):
             'tag_percent': tag_percent,
             'type_percent': type_percent,
         })
+        #// report_data is a list [...], Containing multiple dictionaries {...}
+        #// Some values in those dictionaries (like tag_percent, type_percent) are nested dictionaries
+        #// report_data = [
+        #     {
+        #         'month': '2025-06',
+        #         'total_duration': 748491,
+        #         'tag_percent': {
+        #             'Nap': 95.24,
+        #             'Studying': 4.64,
+        #             'Eating': 0.0,
+        #         },
+        #         'type_percent': {
+        #             'RS': 95.24,
+        #             'PR': 4.7,
+        #             'UN': 0.06,
+        #         },
+        #     },
+        #     {
+        #         'month': '2025-07',
+        #         'total_duration': 746640,
+        #         'tag_percent': {
+        #             'Workout': 92.57,
+        #             'Studying': 7.43,
+        #         },
+        #         'type_percent': {
+        #             'PR': 100.0,
+        #         },
+        #     },
+        #     ...
+        # ]
 
     context = {
         'report_data': report_data,

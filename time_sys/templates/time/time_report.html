@@ -1,21 +1,26 @@
 {% extends 'base.html' %}
 {% block content %}
+{% load humanize %}
 <div class="container mt-4">
   <h2>Monthly Time Reports</h2>
   {% for report in report_data %}
     <div class="card my-3 p-3">
       <h4>{{ report.month }}</h4>
-      <p><strong>Total Duration:</strong> {{ report.total_duration|floatformat:0 }} seconds</p>
+      <p><strong>Total Duration:</strong> {{ report.total_duration|floatformat:0|intcomma }} seconds</p>
       <h5>Types:</h5>
       <ul>
-        {% for type, percent in report.type_percent.items %}
-          <li>{{ type }}: {{ percent }}%</li>
+        {% for type, list in report.type_percent.items %}
+        {% with dur=list.0 percent=list.1 %}
+          <li>{{ type }}: {{ dur|intcomma }} min, {{ percent }}%</li>
+        {% endwith %}
         {% endfor %}
       </ul>
       <h5>Tags:</h5>
       <ul>
-        {% for tag, percent in report.tag_percent.items %}
-          <li>{{ tag }}: {{ percent }}%</li>
+        {% for tag, list in report.tag_percent.items %}
+        {% with dur=list.0 percent=list.1 %}
+          <li>{{ tag }}: {{ dur|intcomma }} min, {{ percent }}%</li>
+        {% endwith %}
         {% endfor %}
       </ul>
     </div>

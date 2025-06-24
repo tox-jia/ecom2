@@ -4,26 +4,15 @@ from django.utils import timezone
 from collections import defaultdict
 import pytz
 
-def invertDictionary(d):
-    myDict = {}
-    for i in d:
-        value = d.get(i)
-        myDict.setdefault(value, []).append(i)
-    return myDict
 
 def timezone_display(user):
- # --- conver "+/-" in timezone into daily use format
+ # --- convert "+/-" in timezone into daily use format
     if user.timezone[7]=="-":
         timezone_string = user.timezone.replace("-", "+")
     else:
         timezone_string = user.timezone.replace("+", "-")
     return timezone_string
-    # ---
 
-
-def listToString(list):
-    listToStr = ' '.join([str(elem) for elem in list])
-    return listToStr
 
 
 def month_jump(last_utc, this_utc):
@@ -53,24 +42,49 @@ def generate_monthly_report():
 
     all_months = (
         TimeRecord.objects.annotate(month=TruncMonth("end"))
+        #// annotate(), is to add a new field
+        #// TruncMonth("end") takes the end datetime and truncates it to the first day of the month at 00:00.
+        #// eg: end = 2025-06-23 14:45:00, TruncMonth("end"): 2025-06-01 00:00:00.
         .values_list("month", flat=True)
+        #// This pulls out just the month values from the queryset.
+		#// flat=True gives you a flat list like: [datetime(2025, 6, 1, 0, 0), datetime(2025, 7, 1, 0, 0), ...]
         .distinct()
+        #// Removes duplicate months from the list, so you only get one entry per unique month.
     )
 
     for month_start in sorted(all_months):
+        #// sort will put the data into ascending sequence:
+        #// from [2025, 7, 1][2025, 10, 1][2025, 3, 1]
+        #// to   [2025, 3, 1][2025, 7, 1][2025, 10, 1]
+        #// Descending: sorted(all_months, reverse=True)
         if not month_start:
             continue
+            #// continue means to skip this data and go for the next data in FOR loop.
+            #// and the rest of the code won't be executed.
 
         year_month = month_start.strftime("%Y-%m")
+        #// put the format into yyyy-mm, from "2025, 6, 1, 0, 0":" to "2025-6"
         if year_month < current_month_str:
-            continue  # ✅ Skip only past months, not current or future
+            continue  # Skip only past months, not current or future
 
         next_month = (month_start + timedelta(days=32)).replace(day=1)
+        #// 1. month_start + timedelta(days=32):
+        #// Adds 32 days to month_start, no matter how long the current month is (28, 30, or 31 days),
+        #// the result is in the next month
+        #// 2. replace(day=1):
+        #// Replaces the day of that new date with 1, i.e., sets it to the first day of that month.
         records = TimeRecord.objects.filter(end__gte=month_start, end__lt=next_month)
+        #// Get all time_records from this month only.
+        #// end__gte(gte = “greater than or equal”), end__lt= (less than)
 
         total_duration = sum(r.duration for r in records)
+        #// very special and shrunk way to write code, shorter, cleaner, faster(no creating intermediate list)
+
         tag_data = defaultdict(int)
         type_data = defaultdict(int)
+        #// is "from collections import defaultdict", a special dictionary type from Python’s collections module.
+        #// with a built-in default value of 0 when a key is missing.
+        #// eg: d = defaultdict(int)  |    d['a'] += 1    |    d['b'] += 3
 
         for r in records:
             tag_data[r.tag] += r.duration
@@ -78,6 +92,23 @@ def generate_monthly_report():
 
         TimeReport.objects.update_or_create(
             year_month=year_month,
+            #// is a hidden "if statement"
+            #// it is equal to:
+            # try:
+            #     report = TimeReport.objects.get(year_month=year_month)
+            #     # If found: UPDATE the fields
+            #     report.total_duration = total_duration
+            #     report.tag_data = dict(tag_data)
+            #     report.type_data = dict(type_data)
+            #     report.save()
+            # except TimeReport.DoesNotExist:
+            #     # If not found: CREATE a new record
+            #     TimeReport.objects.create(
+            #         year_month=year_month,
+            #         total_duration=total_duration,
+            #         tag_data=dict(tag_data),
+            #         type_data=dict(type_data),
+            #     )
             defaults={
                 "total_duration": total_duration,
                 "tag_data": dict(tag_data),
