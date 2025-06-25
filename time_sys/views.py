@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
-
+from django.contrib.auth.models import User
 from django.utils import timezone
 import datetime
 
@@ -16,12 +16,14 @@ from .utils import timezone_display, month_jump
 
 
 @login_required
-@user_passes_test(lambda u: u.is_superuser)
+# @user_passes_test(lambda u: u.is_superuser)
 def time_checkout(request):
     form = TimeCheckoutForm(request.POST or None)
     form_del = RecordDel(request.POST or None)
-    tags = TimeTag.objects.all()
-    record_qs = TimeRecord.objects.all()
+    user_id = request.user.id
+    user_instance = User.objects.get(id=user_id)
+    tags = TimeTag.objects.filter(user=user_instance)
+    record_qs = TimeRecord.objects.filter(user=user_instance)
     checkout_time = timezone.now()
 
     if not tags.exists():
@@ -30,6 +32,7 @@ def time_checkout(request):
 
     if not record_qs.exists():
         TimeRecord.objects.create(
+            user=user_instance,
             tag='start',
             end=checkout_time,  # <- this_utc, not datetime.this_utc()
             duration=0,
@@ -88,12 +91,14 @@ def time_checkout(request):
                 month_jump_result = month_jump(last_utc, this_utc)
                 if month_jump_result:
                     TimeRecord.objects.create(
+                        user=user_instance,
                         tag=tag_raw[0],
                         end=month_jump_result['end1'],
                         duration=month_jump_result['duration1'],
                         type=tag_raw[1]
                     )
                     TimeRecord.objects.create(
+                        user=user_instance,
                         tag=tag_raw[0],
                         end=checkout_time,
                         duration=month_jump_result['duration2'],
@@ -101,6 +106,7 @@ def time_checkout(request):
                     )
                 else:
                     TimeRecord.objects.create(
+                        user=user_instance,
                         tag=tag_raw[0],
                         end=checkout_time,
                         duration=int(duration.total_seconds()),
@@ -118,9 +124,10 @@ def time_checkout(request):
             # Delete the record by clicking 'x' #
             # ----------------------------------#
             elif form_type=="del" and form_del.is_valid():
-                record_del = TimeRecord.objects.filter(id=form_del.cleaned_data['del_id']).first()
-                record_del.delete()
-                return redirect('time_checkout')
+                record_del = TimeRecord.objects.filter(id=form_del.cleaned_data['del_id'], user=user_instance).first()
+                if record_del.user.id == user_id:
+                    record_del.delete()
+                    return redirect('time_checkout')
             # END ------------------------------#
 
 
@@ -129,7 +136,7 @@ def time_checkout(request):
             for err in errs:
                 messages.error(request, f'{field}: {err}')
 
-    records = TimeRecord.objects.order_by('-id')[:2]
+    records = TimeRecord.objects.filter(user=user_instance).order_by('-id')[:2]
 
     context = {
         'form': form,
@@ -152,14 +159,19 @@ def time_checkout(request):
 
 
 @login_required
-@user_passes_test(lambda u: u.is_superuser)
+# @user_passes_test(lambda u: u.is_superuser)
 def time_records(request):
-    records = TimeRecord.objects.all().order_by('-id')
+    user_id = request.user.id
+    user_instance = User.objects.get(id=user_id)
+    records = TimeRecord.objects.filter(user=user_instance).order_by('-id')
     form = RecordDel(request.POST or None)
     if request.method == 'POST' and form.is_valid():
-        record_del = TimeRecord.objects.filter(id=form.cleaned_data['del_id']).first()
-        record_del.delete()
-        messages.success(request, "Deleted")
+        record_del = TimeRecord.objects.filter(id=form.cleaned_data['del_id'], user=user_instance).first()
+        if record_del.user == request.user.id:
+            record_del.delete()
+            messages.success(request, "Deleted")
+        else:
+            messages.success(request, "Nor ur data")
     context = {
         'records': records,
         'timezone': timezone_display(request.user.profile),
@@ -176,12 +188,14 @@ def time_records(request):
 
 
 @login_required
-@user_passes_test(lambda u: u.is_superuser)
+# @user_passes_test(lambda u: u.is_superuser)
 def time_report(request):
     from .utils import generate_monthly_report
-    generate_monthly_report()  # Ensure new reports are created if needed
+    user_id = request.user.id
+    user_instance = User.objects.get(id=user_id)
+    generate_monthly_report(k=user_instance)  # Ensure new reports are created if needed
 
-    reports = TimeReport.objects.all().order_by('-year_month')
+    reports = TimeReport.objects.filter(user=user_instance).order_by('-year_month')
     report_data = []
 
     for report in reports:
@@ -251,29 +265,30 @@ def time_report(request):
 
 
 @login_required
-@user_passes_test(lambda u: u.is_superuser)
 def time_settings(request):
     form1 = SettingsForm(request.POST or None)
     form2 = DeleteTagForm(request.POST or None)
     form3 = UpdateUserForm(request.POST or None, instance=request.user.profile)
-    tags = TimeTag.objects.all()
+    user_id = request.user.id
+    user_instance = User.objects.get(id=user_id)
+    tags = TimeTag.objects.filter(user=user_instance)
 
-    if not tags.exists():
+    if not tags.filter(user=user_instance).exists():
         tag_data = [
-            {"tag": "Sleep", "type": "RS"},
-            {"tag": "Eating", "type": "UN"},
-            {"tag": "Workout", "type": "PR"},
-            {"tag": "Driving", "type": "UN"},
-            {"tag": "Nap", "type": "RS"},
-            {"tag": "Studying", "type": "PR"},
-            {"tag": "Working", "type": "PR"},
-            {"tag": "Shopping", "type": "UN"},
+            {"user":user_instance, "tag": "Sleep", "type": "RS"},
+            {"user":user_instance, "tag": "Eating", "type": "UN"},
+            {"user":user_instance, "tag": "Workout", "type": "PR"},
+            {"user":user_instance, "tag": "Driving", "type": "UN"},
+            {"user":user_instance, "tag": "Nap", "type": "RS"},
+            {"user":user_instance, "tag": "Studying", "type": "PR"},
+            {"user":user_instance, "tag": "Working", "type": "PR"},
+            {"user":user_instance, "tag": "Shopping", "type": "UN"},
         ]
 
         for item in tag_data:
-            TimeTag.objects.create(**item)
+            TimeTag.objects.filter(user=user_instance).create(**item)
 
-        tags = TimeTag.objects.all()
+        tags = TimeTag.objects.filter(user=user_instance)
 
     if request.method == "POST":
         form_type = request.POST.get("form_type")
@@ -281,6 +296,7 @@ def time_settings(request):
         if form_type == "settings_form":
             if form1.is_valid():
                 tag_to_create = TimeTag(
+                    user=user_instance,
                     tag=form1.cleaned_data['setting_tag'],
                     type=form1.cleaned_data['setting_type'],
                 )
@@ -290,7 +306,8 @@ def time_settings(request):
 
         elif form_type == "delete_tag_form":
             if form2.is_valid():
-                selected_tag = tags.filter(tag=form2.cleaned_data['selecting_tag']).first()
+                selected_tag = tags.filter(tag=form2.cleaned_data['selecting_tag'],
+                                           user=user_instance).first()
                 selected_tag.delete()
                 messages.success(request, "Deleted")
                 return redirect('time_settings')

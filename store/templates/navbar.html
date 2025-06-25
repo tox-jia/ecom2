@@ -100,16 +100,58 @@
                 <!-- --------------------------  -->
                 <!-- Home, About, Contact -->
                 <!-- --------------------------  -->
-                <li class="nav-item">
-                    <a class="nav-link {% if request.path == '/' %}active{% endif %}" aria-current="page" href="{% url 'home' %}">
-                        Home
-                    </a>
-                </li>
+<!--                <li class="nav-item">-->
+<!--                    <a class="nav-link {% if request.path == '/' %}active{% endif %}" aria-current="page" href="{% url 'home' %}">-->
+<!--                        Home-->
+<!--                    </a>-->
+<!--                </li>-->
                 <li class="nav-item">
                     <a class="nav-link {% if request.path == '/about/' %}active{% endif %}" href="{% url 'about' %}">
                         About
                     </a>
                 </li>
+                <!-- --------------------------  -->
+                <!-- Time  -->
+                <!-- --------------------------  -->
+                {% if user.is_authenticated == True %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle {% if request.path == '/update_user/' or request.path == '/update_info/' %}active{% endif %}"
+                       id="navbarDropdown" href="#"
+                       role="button"
+                       data-bs-toggle="dropdown"
+                       aria-expanded="false">Time</a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <li>
+                            <a class="dropdown-item" href="{% url 'time_checkout' %}">
+                                Checkout
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider" /></li>
+                        <li>
+                            <a class="dropdown-item"
+                               href="{% url 'time_records' %}">
+                                Records
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider" /></li>
+                        <li>
+                            <a class="dropdown-item"
+                               href="{% url 'time_report' %}">
+                                Reports
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider" /></li>
+                        <li>
+                            <a class="dropdown-item"
+                               href="{% url 'time_settings' %}">
+                                Settings
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                {% endif %}
+
+
                 <!-- --------------------------  -->
                 <!-- Blog  -->
                 <!-- --------------------------  -->

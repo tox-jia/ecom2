@@ -33,7 +33,7 @@ def month_jump(last_utc, this_utc):
 
 
 
-def generate_monthly_report():
+def generate_monthly_report(k):
     from django.db.models.functions import TruncMonth
     from django.db.models import Sum
 
@@ -41,7 +41,7 @@ def generate_monthly_report():
     current_month_str = now.strftime("%Y-%m")
 
     all_months = (
-        TimeRecord.objects.annotate(month=TruncMonth("end"))
+        TimeRecord.objects.filter(user=k).annotate(month=TruncMonth("end"))
         #// annotate(), is to add a new field
         #// TruncMonth("end") takes the end datetime and truncates it to the first day of the month at 00:00.
         #// eg: end = 2025-06-23 14:45:00, TruncMonth("end"): 2025-06-01 00:00:00.
@@ -73,7 +73,7 @@ def generate_monthly_report():
         #// the result is in the next month
         #// 2. replace(day=1):
         #// Replaces the day of that new date with 1, i.e., sets it to the first day of that month.
-        records = TimeRecord.objects.filter(end__gte=month_start, end__lt=next_month)
+        records = TimeRecord.objects.filter(user=k, end__gte=month_start, end__lt=next_month)
         #// Get all time_records from this month only.
         #// end__gte(gte = “greater than or equal”), end__lt= (less than)
 
@@ -91,6 +91,8 @@ def generate_monthly_report():
             type_data[r.type] += r.duration
 
         TimeReport.objects.update_or_create(
+            user=k,
+            #// user=k passes an int (user ID), but user is a ForeignKey, so Django expects a **User instance`, not an int.
             year_month=year_month,
             #// is a hidden "if statement"
             #// it is equal to:

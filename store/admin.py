@@ -16,6 +16,7 @@ class ProfileInline(admin.StackedInline):
 class UserAdmin(admin.ModelAdmin):
     model = User
     field = ["username", "first_name", "last_name", "email"]
+    readonly_fields = ['id']
     inlines = [ProfileInline]
 
 
@@ -24,7 +25,6 @@ admin.site.unregister(User)
 
 # Re-register the new way
 admin.site.register(User, UserAdmin)
-
 
 
 from django import forms
