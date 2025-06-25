@@ -276,12 +276,12 @@ def time_settings(request):
     if not tags.filter(user=user_instance).exists():
         tag_data = [
             {"user":user_instance, "tag": "Sleep", "type": "RS"},
-            {"user":user_instance, "tag": "Eating", "type": "UN"},
+            {"user":user_instance, "tag": "Eat", "type": "UN"},
             {"user":user_instance, "tag": "Workout", "type": "PR"},
-            {"user":user_instance, "tag": "Driving", "type": "UN"},
+            {"user":user_instance, "tag": "Transport", "type": "UN"},
             {"user":user_instance, "tag": "Nap", "type": "RS"},
-            {"user":user_instance, "tag": "Studying", "type": "PR"},
-            {"user":user_instance, "tag": "Working", "type": "PR"},
+            {"user":user_instance, "tag": "Study", "type": "PR"},
+            {"user":user_instance, "tag": "Work", "type": "PR"},
             {"user":user_instance, "tag": "Shopping", "type": "UN"},
         ]
 
