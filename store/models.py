@@ -31,7 +31,7 @@ class Profile(models.Model):
     old_cart = models.CharField(max_length=200, blank=True, null=True)
 
     # NEW field for timezone
-    timezone = models.CharField(max_length=50, blank=True, null=True, default="UTC")
+    timezone = models.CharField(max_length=50, default="Etc/GMT-0")
 
     # for the admin section
     def __str__(self):
