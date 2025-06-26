@@ -14,8 +14,22 @@
 
 <form id="my_form" method="POST" class="form-register">
    {{ form.as_p }}
-{% csrf_token %}
+   {% csrf_token %}
 <div class="container-fluid px-2" style="font-size:12px">
+   <div class="row py-2" style="font-size:16px">
+      <div class="col-12 text-center">
+         <div class="ms-2" style="float:left;">Today</div>
+         <div class="col-6 form-check form-switch ms-3" style="float:left">
+            <input class="form-check-input"
+                   type="checkbox"
+                   name="today_switch"
+                   id="today_switch"
+                   value="1"
+                   style="transform: rotate(180deg);"
+                   checked onclick="myFunction()"/>
+         </div>
+      </div>
+   </div>
    <div class="row">
       <div class="col-12">
          <table class="table border border-1">
@@ -28,11 +42,11 @@
                   <th scope="col"></th>
                </tr>
             </thead>
-            <tbody>
-               {% for record in records %}
-               <tr>
+            <tbody id="record-table-body">
+               {% for record in records_today %}
+               <tr{% if record.type == "PR" %} style="color: #F00"{% endif %}>
                   {% timezone request.user.profile.timezone %}
-                  <td>{{ record.end|date:"Y.m.d | H:i:s" }}</td>
+                  <td>{{ record.end|date:"d | H:i:s" }}</td>
                   {% endtimezone %}
                   <td>{{ record.formatted_duration }}</td>
                   <td>{{ record.tag }}</td>
@@ -47,10 +61,65 @@
                </tr>
                {% endfor %}
             </tbody>
+<!--            <tbody>-->
+<!--               { for record in records %}-->
+<!--               <tr>-->
+<!--                  { timezone request.user.profile.timezone %}-->
+<!--                  <td>{ record.end|date:"d | H:i:s" }}</td>-->
+<!--&lt;!&ndash;                  <td>{ record.end|date:"Y.m.d | H:i:s" }}</td>&ndash;&gt;-->
+<!--                  { endtimezone %}-->
+<!--                  <td>{ record.formatted_duration }}</td>-->
+<!--                  <td>{ record.tag }}</td>-->
+<!--                  <td>{ record.type }}</td>-->
+<!--                  <td>-->
+<!--                     <input style="display:none" name="del_id" id="ch{ record.id }}" type="radio" value="{ record.id }}">-->
+<!--                     <a href="javascript:{}" onclick="-->
+<!--                           document.getElementById('ch{ record.id }}').checked = true;-->
+<!--                           document.getElementById('my_form').submit();-->
+<!--                           ">x</a>-->
+<!--                  </td>-->
+<!--               </tr>-->
+<!--               { endfor %}-->
+<!--            </tbody>-->
          </table>
       </div>
    </div>
 </div>
 </form>
 
+
+<script>
+function myFunction() {
+    const checkBox = document.getElementById("today_switch");
+    const today = checkBox.checked ? 1 : 0;
+
+    fetch(`/time_sys/ajax/records_toggle/?today=${today}`, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        const tbody = document.getElementById("record-table-body");
+        tbody.innerHTML = "";
+
+        data.records.forEach(record => {
+            tbody.innerHTML += `
+            <tr>
+                <td>${record.end}</td>
+                <td>${record.duration}</td>
+                <td>${record.tag}</td>
+                <td>${record.type}</td>
+                <td>
+                    <input style="display:none" name="del_id" id="ch${record.id}" type="radio" value="${record.id}">
+                    <a href="javascript:{}" onclick="
+                        document.getElementById('ch${record.id}').checked = true;
+                        document.getElementById('my_form').submit();
+                    ">x</a>
+                </td>
+            </tr>`;
+        });
+    });
+}
+</script>
 {% endblock %}

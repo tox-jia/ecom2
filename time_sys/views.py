@@ -163,20 +163,54 @@ def time_checkout(request):
 def time_records(request):
     user_id = request.user.id
     user_instance = User.objects.get(id=user_id)
+    start_of_day = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
     records = TimeRecord.objects.filter(user=user_instance).order_by('-id')
+    records_today = TimeRecord.objects.filter(user=user_instance, end__gte=start_of_day).order_by('-id')
     form = RecordDel(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         record_del = TimeRecord.objects.filter(id=form.cleaned_data['del_id'], user=user_instance).first()
-        if record_del.user == request.user.id:
+        if record_del.user == request.user:
             record_del.delete()
             messages.success(request, "Deleted")
         else:
-            messages.success(request, "Nor ur data")
+            messages.success(request, "Not ur data")
     context = {
         'records': records,
+        'records_today': records_today,
         'timezone': timezone_display(request.user.profile),
     }
     return render(request, 'time/time_records.html', context)
+
+
+
+
+
+from django.http import JsonResponse
+from django.utils.timezone import localtime
+
+@login_required
+def ajax_records_toggle(request):
+    if request.method == "GET" and request.headers.get("x-requested-with") == "XMLHttpRequest":
+        show_today = request.GET.get("today") == "1"
+        user = request.user
+
+        if show_today:
+            today = timezone.localtime().date()
+            records = TimeRecord.objects.filter(user=user, end__date=today).order_by('-end')
+        else:
+            records = TimeRecord.objects.filter(user=user).order_by('-end')[:30]
+
+        user_timezone = pytz.timezone(user.profile.timezone)
+
+        records_data = [{
+            'id': r.id,
+            'end': r.end.astimezone(user_timezone).strftime('%d | %H:%M:%S'),
+            'duration': r.formatted_duration,
+            'tag': r.tag,
+            'type': r.type,
+        } for r in records]
+
+        return JsonResponse({'records': records_data})
 
 
 
