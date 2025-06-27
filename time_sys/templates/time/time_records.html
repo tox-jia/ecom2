@@ -104,8 +104,9 @@ function myFunction() {
         tbody.innerHTML = "";
 
         data.records.forEach(record => {
+            const rowStyle = record.type === "PR" ? ' style="color: #F00"' : '';
             tbody.innerHTML += `
-            <tr>
+            <tr${rowStyle}>
                 <td>${record.end}</td>
                 <td>${record.duration}</td>
                 <td>${record.tag}</td>
