@@ -17,47 +17,88 @@ load_dotenv()
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-^&(#v2#gc*!vww(t!xpp7g=k2+)u)8e_$(3-ipxvichzyyl(dk'
+# SECRET_KEY = '...'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG = True
+SECRET_KEY = os.getenv("SECRET_KEY", "unsafe-dev-secret")
+DEBUG = os.getenv("DEBUG", "True") == "True"
 
 
 # ------------------------------------------------
-# [Database 1] online (railway + database)
+# [Database] .ENV to toggle online/local (railway + database)
 # ------------------------------------------------
-## connected to railway and domain
-ALLOWED_HOSTS = ['https://shamelesis.com',
-                 'shamelesis.com',
-                 'ecom2-production-2c2f.up.railway.app',
-                 'https://ecom2-production-2c2f.up.railway.app']
-CSRF_TRUSTED_ORIGINS = ['https://shamelesis.com',
-                        'https://ecom2-production-2c2f.up.railway.app']
+USE_LOCAL_DB = os.getenv("USE_LOCAL_DB", "True") == "True"
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'railway',
-        'USER': 'postgres',
-        'PASSWORD': os.environ['DB_PASSWORD'],
-         #// we use environmental password
-        'HOST': 'shuttle.proxy.rlwy.net',
-        'PORT': '18926',
+if USE_LOCAL_DB:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
-# -------------------- END -----------------------
+else:
+    ALLOWED_HOSTS = [
+        'https://shamelesis.com',
+        'shamelesis.com',
+        'ecom2-production-2c2f.up.railway.app',
+        'https://ecom2-production-2c2f.up.railway.app'
+    ]
+
+    CSRF_TRUSTED_ORIGINS = [
+        'https://shamelesis.com',
+        'https://ecom2-production-2c2f.up.railway.app'
+    ]
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'railway',
+            'USER': 'postgres',
+            'PASSWORD': os.getenv("DB_PASSWORD"),  # Loaded from .env
+            'HOST': 'shuttle.proxy.rlwy.net',
+            'PORT': '18926',
+        }
+    }
 
 
-# ## ------------------------------------------------
-# ## [Database 2] Local Database
-# ## ------------------------------------------------
+
+
+# # ------------------------------------------------
+# # [Database 1] online (railway + database)
+# # ------------------------------------------------
+# ## connected to railway and domain
+# ALLOWED_HOSTS = ['https://shamelesis.com',
+#                  'shamelesis.com',
+#                  'ecom2-production-2c2f.up.railway.app',
+#                  'https://ecom2-production-2c2f.up.railway.app']
+# CSRF_TRUSTED_ORIGINS = ['https://shamelesis.com',
+#                         'https://ecom2-production-2c2f.up.railway.app']
+#
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'railway',
+#         'USER': 'postgres',
+#         'PASSWORD': os.environ['DB_PASSWORD'],
+#          #// we use environmental password
+#         'HOST': 'shuttle.proxy.rlwy.net',
+#         'PORT': '18926',
+#     }
+# }
+# # -------------------- END -----------------------
+
+
+## ------------------------------------------------
+## [Database 2] Local Database
+## ------------------------------------------------
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.sqlite3',
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
-# ## -------------------- END -----------------------
+## -------------------- END -----------------------
 
 
 # Application definition
