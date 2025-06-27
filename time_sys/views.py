@@ -198,7 +198,7 @@ def ajax_records_toggle(request):
             today = timezone.localtime().date()
             records = TimeRecord.objects.filter(user=user, end__date=today).order_by('-end')
         else:
-            records = TimeRecord.objects.filter(user=user).order_by('-end')[:30]
+            records = TimeRecord.objects.filter(user=user).order_by('-end')
 
         user_timezone = pytz.timezone(user.profile.timezone)
 
