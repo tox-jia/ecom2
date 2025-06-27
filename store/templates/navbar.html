@@ -169,6 +169,14 @@
                     </a>
                 </li>
                 <!-- --------------------------  -->
+                <!-- Admin  -->
+                <!-- --------------------------  -->
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin">
+                        Admin
+                    </a>
+                </li>
+                <!-- --------------------------  -->
                 <!-- Product  -->
                 <!-- --------------------------  -->
             <!--                <li class="nav-item dropdown">-->
@@ -192,11 +200,6 @@
                 <!-- Log in/out & Register  -->
                 <!-- --------------------------  -->
                 {% if user.is_authenticated == False %}
-                <li class="nav-item">
-                    <a class="nav-link {% if request.path == '/register/' %}active{% endif %}" href="{% url 'google' %}">
-                        Register
-                    </a>
-                </li>
                 <li class="nav-item me-5">
                     <a class="nav-link {% if request.path == '/login/' %}active{% endif %}" href="{% url 'google' %}">
                         Login
@@ -261,7 +264,7 @@
                 </li>
                 {% endif %}
                 <!-- --------------------------  -->
-                <!-- END  -->
+                <!-- End  -->
                 <!-- --------------------------  -->
             </ul>
             <!-- --------------------------  -->
