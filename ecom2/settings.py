@@ -28,16 +28,9 @@ DEBUG = os.getenv("DEBUG", "True") == "True"
 # ------------------------------------------------
 # [Database] .ENV to toggle online/local (railway + database)
 # ------------------------------------------------
-USE_LOCAL_DB = os.getenv("USE_LOCAL_DB", "True") == "True"
+USE_ONLINE_DB = os.getenv("USE_ONLINE_DB", "True") == "True"
 
-if USE_LOCAL_DB:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
-else:
+if USE_ONLINE_DB:
     ALLOWED_HOSTS = [
         'https://shamelesis.com',
         'shamelesis.com',
@@ -58,6 +51,13 @@ else:
             'PASSWORD': os.getenv("DB_PASSWORD"),  # Loaded from .env
             'HOST': 'shuttle.proxy.rlwy.net',
             'PORT': '18926',
+        }
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
 
