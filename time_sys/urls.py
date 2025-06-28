@@ -7,4 +7,5 @@ urlpatterns = [
     path('time_report/', views.time_report, name='time_report'),
     path('time_settings/', views.time_settings, name='time_settings'),
     path('ajax/records_toggle/', views.ajax_records_toggle, name='ajax_records_toggle'),
+    path('time_download/', views.time_download, name='time_download'),
 ]

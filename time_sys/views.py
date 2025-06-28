@@ -220,6 +220,53 @@ def ajax_records_toggle(request):
 
 
 
+import openpyxl
+from django.http import HttpResponse
+@login_required
+def time_download(request):
+    # Create workbook
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Time Records"
+
+    # Query records
+    # Determine which records to fetch
+    if request.user.is_superuser:
+        records = TimeRecord.objects.all().order_by('-end')
+    else:
+        records = TimeRecord.objects.filter(user=request.user).order_by('-end')
+    tz_str = request.user.profile.timezone
+    user_tz = pytz.timezone(tz_str)
+
+    # Add headers
+    ws.append(["Id", "User", 'UTC', tz_str, "Duration", "Tag", "Type"])
+
+    # Add rows
+    for r in records:
+        ws.append([
+            r.id,
+            request.user.id,
+            localtime(r.end).strftime('%Y-%m-%d %H:%M:%S'),
+            r.end.astimezone(user_tz).strftime('%Y-%m-%d %H:%M:%S'),
+            r.formatted_duration,
+            r.tag,
+            r.type
+        ])
+
+    # Prepare response
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=time_records.xlsx'
+    wb.save(response)
+    return response
+
+
+
+
+
+
+
+
+
 
 @login_required
 # @user_passes_test(lambda u: u.is_superuser)

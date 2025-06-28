@@ -8,8 +8,7 @@
 </script>
 
 <div class="col-12 text-end pe-2">
-   <a href="{{ url_for('download_page', i='time')
-   }}">⇩</a>
+   <a href="{% url 'time_download' %}">⇩</a>
 </div>
 
 <form id="my_form" method="POST" class="form-register">
