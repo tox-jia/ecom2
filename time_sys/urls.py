@@ -8,4 +8,5 @@ urlpatterns = [
     path('time_settings/', views.time_settings, name='time_settings'),
     path('ajax/records_toggle/', views.ajax_records_toggle, name='ajax_records_toggle'),
     path('time_download/', views.time_download, name='time_download'),
+    path('time_upload/', views.upload_excel, name='time_upload'),
 ]

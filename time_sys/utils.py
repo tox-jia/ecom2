@@ -5,6 +5,22 @@ from collections import defaultdict
 import pytz
 
 
+import re
+def parse_duration_to_seconds(duration_str):
+    # Pattern looks for groups like: 1h, 19m, 14s
+    pattern = r'(?:(\d+)h)?\s*(?:(\d+)m)?\s*(?:(\d+)s)?'
+    match = re.match(pattern, duration_str.strip())
+
+    if not match:
+        return 0
+
+    hours = int(match.group(1)) if match.group(1) else 0
+    minutes = int(match.group(2)) if match.group(2) else 0
+    seconds = int(match.group(3)) if match.group(3) else 0
+
+    return hours * 3600 + minutes * 60 + seconds
+
+
 def timezone_display(user):
  # --- convert "+/-" in timezone into daily use format
     if user.timezone[7]=="-":

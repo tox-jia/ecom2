@@ -24,3 +24,7 @@ class DeleteTagForm(forms.Form):
 
 class RecordDel(forms.Form):
     del_id = forms.IntegerField()
+
+
+class ExcelUploadForm(forms.Form):
+    file = forms.FileField(label='Upload Excel File')

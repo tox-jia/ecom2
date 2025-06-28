@@ -264,6 +264,54 @@ def time_download(request):
 
 
 
+from .forms import ExcelUploadForm
+from .utils import parse_duration_to_seconds
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def upload_excel(request):
+    if request.method == 'POST':
+        form = ExcelUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            file = form.cleaned_data['file']
+            wb = openpyxl.load_workbook(file)
+            ws = wb.active
+
+            rows = list(ws.iter_rows(min_row=2, values_only=True))  # skip header
+
+            for row in rows:
+                try:
+                    record_id, user_id, utc_time_str, local_time_str, duration, tag, type_ = row
+
+                    # Convert UTC time string to datetime
+                    utc_time = timezone.datetime.strptime(utc_time_str, "%Y-%m-%d %H:%M:%S")
+                    # utc_time = timezone.make_aware(utc_time, timezone.utc)
+
+                    # Get user instance (assumes superuser or pre-existing users)
+                    user = User.objects.get(id=user_id)
+
+                    TimeRecord.objects.create(
+                        user=user,
+                        end=utc_time,
+                        duration=parse_duration_to_seconds(duration),
+                        tag=tag,
+                        type=type_,
+                    )
+                except Exception as e:
+                    messages.error(request, f"Error in row {row}: {e}")
+                    continue
+
+            messages.success(request, "Upload complete!")
+            return redirect('time_records')
+    else:
+        form = ExcelUploadForm()
+
+    return render(request, 'time/upload_excel.html', {'form': form})
+
+
+
+
+
+
 
 
 
