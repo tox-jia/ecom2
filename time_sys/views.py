@@ -3,16 +3,18 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.utils import timezone
-import datetime
+from datetime import datetime
+import calendar
 
 from store.models import Profile
 from store.forms import UpdateUserForm
 import pytz
 # import json
 #
-from .models import TimeRecord, TimeTag, TimeReport
-from .forms import TimeCheckoutForm, SettingsForm, DeleteTagForm, RecordDel
-from .utils import timezone_display, month_jump
+from .models import TimeRecord, TimeTag, TimeReport, HealthMedicineTag, HealthRecord
+from .forms import (TimeCheckoutForm, SettingsForm, DeleteTagForm, RecordDel,
+                    MedicineForm, DeleteMedForm, MedicineRecordForm, WeightForm)
+from .utils import timezone_display, month_jump, generate_wheel, generate_wheel_with_rotation, generate_monthly_report
 
 
 @login_required
@@ -20,16 +22,43 @@ from .utils import timezone_display, month_jump
 def time_checkout(request):
     form = TimeCheckoutForm(request.POST or None)
     form_del = RecordDel(request.POST or None)
+    form_medicine = MedicineRecordForm(request.POST or None)
+    form_weight = WeightForm(request.POST or None)
+
+
     user_id = request.user.id
     user_instance = User.objects.get(id=user_id)
     tags = TimeTag.objects.filter(user=user_instance)
+
+
+
     record_qs = TimeRecord.objects.filter(user=user_instance)
     checkout_time = timezone.now()
 
+    time_report_pr = TimeReport.objects.filter(user=user_instance).order_by('-id').first()
+    day_data = time_report_pr.day_pr_data
+    this_utc = timezone.now()
+    this_utc_ymd_str = this_utc.strftime('%Y-%m-%d')
+
+    if this_utc_ymd_str not in day_data:
+        day_data[this_utc_ymd_str] = []
+        time_report_pr.day_pr_data = day_data
+        time_report_pr.save()
+
+
+    med_names = HealthMedicineTag.objects.filter(user=user_instance).all()
+
+
+    # ----------------------------------#
+    # New User Tags Creation #
+    # ------------ ---- ---------------#
     if not tags.exists():
         messages.error(request, 'Please create a Time-Tag first.')
         return redirect('time_settings')
 
+    # ----------------------------------#
+    # Start Record #
+    # ------------ ---- ---------------#
     if not record_qs.exists():
         TimeRecord.objects.create(
             user=user_instance,
@@ -47,15 +76,20 @@ def time_checkout(request):
 
         if request.method == 'POST':
             form_type = request.POST.get("form_type")
+
+
             # ----------------------------------#
-            # Checkout #
-            # ------------ Start ---------------#
+            # Checkout Form #
+            # ------------ ---- ---------------#
             if form_type=="checkout" and form.is_valid():
                 tag_raw = form.cleaned_data['time_tag'].split("-", 2)
-                time_switch = form.cleaned_data['time_switch']
+                time_tag = tag_raw[0]
+                time_type = tag_raw[1]
+
                 # ----------------------------------#
                 # Switch is on #
-                # ------------ Start ---------------#
+                # ------------ ----- ---------------#
+                time_switch = form.cleaned_data['time_switch']
                 if time_switch:
                     this_raw = form.cleaned_data['time_correction']
                     if timezone.is_aware(this_raw):
@@ -75,6 +109,7 @@ def time_checkout(request):
 
                     duration = this_utc - last_utc
                     checkout_time = this_utc
+
                 # ----------------------------------#
                 # Switch is off #
                 # ------------ Start ---------------#
@@ -84,44 +119,61 @@ def time_checkout(request):
                 # END ------------------------------#
 
 
+                this_utc_ymd_str = this_utc.strftime('%Y-%m-%d')
+                last_utc_ymd_str = last_utc.strftime('%Y-%m-%d')
+
+
                 # ----------------------------------#
                 # Month Jump #
                 # // by using "utlis.py"
-                # ------------ Start ---------------#
+                # ------------ ----- ---------------#
                 month_jump_result = month_jump(last_utc, this_utc)
                 if month_jump_result:
                     TimeRecord.objects.create(
                         user=user_instance,
-                        tag=tag_raw[0],
+                        tag=time_tag,
                         end=month_jump_result['end1'],
                         duration=month_jump_result['duration1'],
-                        type=tag_raw[1]
+                        type=time_type
                     )
                     TimeRecord.objects.create(
                         user=user_instance,
-                        tag=tag_raw[0],
+                        tag=time_tag,
                         end=checkout_time,
                         duration=month_jump_result['duration2'],
-                        type=tag_raw[1]
+                        type=time_type
                     )
+                    first_checkout_dic = {this_utc_ymd_str:[]}
+                    generate_monthly_report(k=user_instance, first_checkout_dic=first_checkout_dic)
                 else:
                     TimeRecord.objects.create(
                         user=user_instance,
-                        tag=tag_raw[0],
+                        tag=time_tag,
                         end=checkout_time,
                         duration=int(duration.total_seconds()),
-                        type=tag_raw[1]
+                        type=time_type
                     )
+
+                # ----------------------------------#
+                # PR in TimeReport
+                # ------------ ---- ---------------#
+                if time_type == "PR":
+                    if last_utc_ymd_str not in day_data:
+                        day_data[last_utc_ymd_str] = []
+                    if this_utc_ymd_str != last_utc_ymd_str:
+                        day_data[last_utc_ymd_str].append(time_tag)
+                    else:
+                        day_data[this_utc_ymd_str].append(time_tag)
+                time_report_pr.day_pr_data = day_data
+                time_report_pr.save()
                 # END ------------------------------#
 
-
-                # messages.success(request, "Time checkout successfully.")
                 return redirect('time_checkout')
             # END ------------------------------#
 
 
             # ----------------------------------#
-            # Delete the record by clicking 'x' #
+            # Delete Form: del record by 'x' #
             # ----------------------------------#
             elif form_type=="del" and form_del.is_valid():
                 record_del = TimeRecord.objects.filter(id=form_del.cleaned_data['del_id'], user=user_instance).first()
@@ -131,21 +183,195 @@ def time_checkout(request):
             # END ------------------------------#
 
 
+            # ----------------------------------#
+            # Medicine Form #
+            # ----------------------------------#
+            elif form_type == "medicine" and form_medicine.is_valid():
+                health_record, created = HealthRecord.objects.get_or_create(
+                    day=this_utc_ymd_str,
+                    user=user_instance,
+                    defaults={'weight': {}, 'medicine': []}
+                )
+                # Safely get the current medicine data
+                medicine_data = health_record.medicine or []
+                # Update the data (e.g., mark that this medicine was taken today)
+                medicine_data.append(form_medicine.cleaned_data['med_name'])  # Or any other value you want to store
+
+                # Assign the updated dict back and save
+                health_record.medicine = medicine_data
+                health_record.save()
+                return redirect('time_checkout')
+            # END ------------------------------#
+
+
+
+            # ----------------------------------#
+            # Weight Form #
+            # ----------------------------------#
+            elif form_type == "weight" and form_weight.is_valid():
+                # Get form data
+                weight_morning_raw = form_weight.cleaned_data['weight_Morning']
+                weight_beforelunch_raw = form_weight.cleaned_data['weight_BeforeLunch']
+                weight_afterlunch_raw = form_weight.cleaned_data['weight_AfterLunch']
+                weight_sleep_raw = form_weight.cleaned_data['weight_Sleep']
+
+                # Helper function to parse and calculate fat weight
+                # Helper function to parse and calculate fat weight
+                def parse_weight_entry(entry):
+                    if not entry:
+                        return None  # Nothing entered
+                    parts = entry.split()
+                    try:
+                        if len(parts) == 2:
+                            weight = float(parts[0])
+                            fat_percentage = float(parts[1])
+                            fat_weight = round(weight * fat_percentage / 100, 2)
+                            return [weight, fat_percentage, fat_weight]
+                        elif len(parts) == 1:
+                            weight = float(parts[0])
+                            return [weight]
+                        else:
+                            return None  # Invalid format
+                    except ValueError:
+                        return None  # If not numeric input, ignore
+
+                # Build the weight dict
+                weight_data = {}
+                if parsed := parse_weight_entry(weight_morning_raw):
+                    weight_data["morning"] = parsed
+                    #// What you’re seeing is called the walrus operator (:=)
+                    #// # Traditional way
+                        #1 result = parse_weight_entry(weight_morning_raw)
+                        #2 if result:
+                        #3     print(result)
+                        # Walrus operator
+                        #1 if (result := parse_weight_entry(weight_morning_raw)):
+                        #2     print(result)
+                if parsed := parse_weight_entry(weight_beforelunch_raw):
+                    weight_data["before lunch"] = parsed
+                if parsed := parse_weight_entry(weight_afterlunch_raw):
+                    weight_data["after lunch"] = parsed
+                if parsed := parse_weight_entry(weight_sleep_raw):
+                    weight_data["sleep"] = parsed
+
+                if weight_data:
+                    health_record, created = HealthRecord.objects.get_or_create(
+                        day=this_utc_ymd_str,
+                        user=user_instance,
+                        defaults={'weight': {}, 'medicine': []}
+                    )
+
+                    # Merge with existing data
+                    existing_weight = health_record.weight or {}
+                    existing_weight.update(weight_data)
+
+                    health_record.weight = existing_weight
+                    health_record.save()
+
+                return redirect('time_checkout')
+            # END ------------------------------#
+
+
     if form.errors:
         for field, errs in form.errors.items():
             for err in errs:
                 messages.error(request, f'{field}: {err}')
 
+    # ----------------------------------#
+    # 2 latest Time Records
+    # ----------------------------------#
     records = TimeRecord.objects.filter(user=user_instance).order_by('-id')[:2]
 
+
+
+
+    # ----------------------------------#
+    # PR tags Polygon & Active
+    # ----------------------------------#
+    pr_tags = [i for i in tags if i.type == 'PR']
+    #// special grammar
+    n = len(pr_tags)
+    length = 2000
+    thickness1 = 80
+    thickness2 = 80
+    inner = 40
+    wheel_fill = generate_wheel_with_rotation(n, length, thickness1+inner, thickness2+inner, pr_tags)
+    angles = [(360 / n) * i for i in range(n)]
+    # // special grammar
+
+    tag_to_id = {tri['pr_tags'].tag.lower(): tri['id'] for tri in wheel_fill}
+    #// to assign id number to each polygon button to control
+    # END ------------------------------#
+
+
+
+
+    # ----------------------------------#
+    # Medicine & Active
+    # ----------------------------------#
+    today_meds = HealthRecord.objects.filter(
+                    day=this_utc_ymd_str,
+                    user=user_instance,
+                ).first().medicine
+    # END ------------------------------#
+
+
+
+
+    # ----------------------------------#
+    # Weight Part 2: Pre-fill form data
+    # ----------------------------------#
+    health_record = HealthRecord.objects.filter(day=this_utc_ymd_str, user=user_instance).first()
+
+    # Helper to convert the list to the correct input string
+    def list_to_string(data):
+        if not data:
+            return ''
+        # If only weight is present
+        if len(data) == 1:
+            return str(data[0])
+        # If weight and fat % are present
+        return ' '.join(str(i) for i in data)
+
+    # Prepare initial data
+    initial_weight_data = {}
+    if health_record:
+        weight = health_record.weight or {}
+        initial_weight_data = {
+            'weight_Morning': list_to_string(weight.get('morning')),
+            'weight_BeforeLunch': list_to_string(weight.get('before lunch')),
+            'weight_AfterLunch': list_to_string(weight.get('after lunch')),
+            'weight_Sleep': list_to_string(weight.get('sleep')),
+        }
+
+    # Pass the initial data to the form
+    form_weight = WeightForm(initial=initial_weight_data)
+    # ----------------------------------#
+
+
+
+
+
+
+
+
     context = {
+        'tag_to_id': tag_to_id,
+        'wheel_fill': wheel_fill,
+        'angles': angles,
+        'wheel_ring': generate_wheel(n, length, thickness1, thickness2),
         'form': form,
         'form_del':form_del,
+        'form_weight': form_weight,
+        'weight_display': health_record.weight if health_record else {},
         'tags': tags,
         'timezone': timezone_display(request.user.profile),
         'now': this_utc,
         'last': last_utc if record_qs.exists() else None,
-        'records': records
+        'records': records,
+        'today_tags': day_data[this_utc_ymd_str],
+        'today_meds': list(set(today_meds)),
+        'med_names': med_names,
     }
     return render(request, 'time/time_checkout.html', context)
 
@@ -171,7 +397,6 @@ def time_records(request):
         record_del = TimeRecord.objects.filter(id=form.cleaned_data['del_id'], user=user_instance).first()
         if record_del.user == request.user:
             record_del.delete()
-            messages.success(request, "Deleted")
         else:
             messages.success(request, "Not ur data")
     context = {
@@ -315,74 +540,75 @@ def upload_excel(request):
 
 
 
-
 @login_required
-# @user_passes_test(lambda u: u.is_superuser)
 def time_report(request):
-    from .utils import generate_monthly_report
-    user_id = request.user.id
-    user_instance = User.objects.get(id=user_id)
-    generate_monthly_report(k=user_instance)  # Ensure new reports are created if needed
+    user_instance = request.user
+    this_utc = timezone.now()
+    this_utc_ym_str = this_utc.strftime('%Y-%m')
+    this_utc_ymd_str = this_utc.strftime('%Y-%m-%d')
 
+    # Get the latest report
+    reports_first = TimeReport.objects.filter(user=user_instance).order_by('-year_month').first()
+    if reports_first and reports_first.year_month == this_utc_ym_str:
+        generate_monthly_report(user_instance, reports_first.day_pr_data)
+
+    # Prepare all reports
     reports = TimeReport.objects.filter(user=user_instance).order_by('-year_month')
     report_data = []
-
     for report in reports:
-        if report.total_duration:
-            tag_percent = {
-                tag: [round(dur / 60) , round(dur / report.total_duration * 100, 2)]
-                for tag, dur in report.tag_data.items()
-            }
-            type_percent = {
-                typ: [round(dur / 60), round(dur / report.total_duration * 100, 2)]
-                for typ, dur in report.type_data.items()
-            }
-        else:
-            tag_percent = {}
-            type_percent = {}
+        total = report.total_duration or 1  # prevent division by zero
+        tag_percent = {tag: [round(d / 60), round(d / total * 100, 2)] for tag, d in report.tag_data.items()}
+        type_percent = {typ: [round(d / 60), round(d / total * 100, 2)] for typ, d in report.type_data.items()}
+        report_data.append({'month': report.year_month, 'total_duration': report.total_duration, 'tag_percent': tag_percent, 'type_percent': type_percent})
 
-        report_data.append({
-            'month': report.year_month,
-            'total_duration': report.total_duration,
-            'tag_percent': tag_percent,
-            'type_percent': type_percent,
-        })
-        #// report_data is a list [...], Containing multiple dictionaries {...}
-        #// Some values in those dictionaries (like tag_percent, type_percent) are nested dictionaries
-        #// report_data = [
-        #     {
-        #         'month': '2025-06',
-        #         'total_duration': 748491,
-        #         'tag_percent': {
-        #             'Nap': 95.24,
-        #             'Studying': 4.64,
-        #             'Eating': 0.0,
-        #         },
-        #         'type_percent': {
-        #             'RS': 95.24,
-        #             'PR': 4.7,
-        #             'UN': 0.06,
-        #         },
-        #     },
-        #     {
-        #         'month': '2025-07',
-        #         'total_duration': 746640,
-        #         'tag_percent': {
-        #             'Workout': 92.57,
-        #             'Studying': 7.43,
-        #         },
-        #         'type_percent': {
-        #             'PR': 100.0,
-        #         },
-        #     },
-        #     ...
-        # ]
+    # Get PR tags
+    pr_tags = TimeTag.objects.filter(user=user_instance, type='PR')
+
+    # Get this month's health records
+    health_records = HealthRecord.objects.filter(user=user_instance, day__startswith=this_utc_ym_str).order_by('-day')
+
+    medicine_done = {}
+    for health_record in health_records:
+        medicine_done[health_record.day] = len(health_record.medicine)
+    count_med_tags = len(HealthMedicineTag.objects.filter(user=user_instance))
 
     context = {
+        'reports_first': reports_first,
+        'pr_tags': pr_tags,
         'report_data': report_data,
-        'timezone': timezone_display(request.user.profile),
+        'timezone': timezone_display(user_instance.profile),
+        'health_records': health_records,
+        'medicine_done': medicine_done,
+        'count_med_tags': count_med_tags
     }
     return render(request, 'time/time_report.html', context)
+#
+#
+#
+#
+#
+#
+#     # ----------------------------------#
+#     # Weight
+#     # ----------------------------------#
+#     year_month = this_utc_ymd_str[:7]  # "2025-07"
+#     health_record = HealthRecord.objects.filter(
+#         user=user_instance,
+#         day__startswith=year_month  # e.g., "2025-07"
+#     ).order_by('-id')
+#     # health_record = HealthRecord.objects.filter(day=this_utc_ymd_str, user=user_instance).first()
+#
+#     # END -------------------------------#
+#
+#
+#     context = {
+#         'reports_first':reports_first,
+#         'pr_tags': pr_tags,
+#         'report_data': report_data,
+#         'timezone': timezone_display(request.user.profile),
+#         'health_record': health_record,
+#     }
+#     return render(request, 'time/time_report.html', context)
 
 
 
@@ -398,19 +624,19 @@ def time_settings(request):
     form1 = SettingsForm(request.POST or None)
     form2 = DeleteTagForm(request.POST or None)
     form3 = UpdateUserForm(request.POST or None, instance=request.user.profile)
+    form4 = MedicineForm(request.POST or None)
+    del_med_form = DeleteMedForm(request.POST or None)
     user_id = request.user.id
     user_instance = User.objects.get(id=user_id)
     tags = TimeTag.objects.filter(user=user_instance)
+    med_names = HealthMedicineTag.objects.filter(user=user_instance)
 
     if not tags.filter(user=user_instance).exists():
         tag_data = [
             {"user":user_instance, "tag": "Sleep", "type": "RS"},
             {"user":user_instance, "tag": "Eat", "type": "UN"},
-            {"user":user_instance, "tag": "Workout", "type": "PR"},
             {"user":user_instance, "tag": "Transport", "type": "UN"},
             {"user":user_instance, "tag": "Nap", "type": "RS"},
-            {"user":user_instance, "tag": "Study", "type": "PR"},
-            {"user":user_instance, "tag": "Work", "type": "PR"},
             {"user":user_instance, "tag": "Shopping", "type": "UN"},
         ]
 
@@ -447,11 +673,36 @@ def time_settings(request):
                 messages.success(request, "Updated")
                 return redirect('time_settings')
 
+        elif form_type == "medicine_name_form":
+            if form4.is_valid():
+                tag_to_create = HealthMedicineTag(
+                    user=user_instance,
+                    name=form4.cleaned_data['medicine_name'],
+                )
+                tag_to_create.save()
+                return redirect('time_settings')
+
+
+        elif form_type == "delete_med_form":
+            if del_med_form.is_valid():
+                selected_tag = HealthMedicineTag.objects.filter(
+                    id=del_med_form.cleaned_data['selecting_med'],
+                    user=user_instance
+                ).first()
+                if selected_tag:
+                    selected_tag.delete()
+                    messages.success(request, "Deleted")
+                else:
+                    messages.error(request, "Tag not found.")
+                return redirect('time_settings')
+
     context = {
         'form': form1,
         'form2': form2,
         'form3': form3,
+        'form4': form4,
         'tags': tags,
+        'med_names': med_names,
     }
 
     return render(request, 'time/time_settings.html', context)

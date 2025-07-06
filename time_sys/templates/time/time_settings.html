@@ -21,6 +21,12 @@
    </div>
 </form>
 </div>
+
+
+
+
+
+
 <div class="container-fluid p-0">
    <form method="POST" class="form-register">
        {% csrf_token %}
@@ -91,5 +97,39 @@
       </div>
 </div>
 
+<div class="container-fluid p-0">
+   <div class="row row border border-dark px-1 mx-1 mb-1 mt-2">
+         <div class="col-12 mt-3 text-start">
+            <form method="POST" class="form-register">
+               {% csrf_token %}
+               <input type="hidden" name="form_type" value="medicine_name_form">
+               {{ form4.as_p }}
+               <button type="submit" class="btn btn-primary mb-3">submit</button>
+            </form>
+         </div>
+      </div>
+</div>
+
+
+
+
+<div class="container-fluid p-0 mb-2">
+   <form method="POST" class="form-register">
+       {% csrf_token %}
+       <input type="hidden" name="form_type" value="delete_med_form">
+      <div class="row row border border-dark px-1 mx-1 mt-2 pb-2">
+         {% for med in med_names %}
+         <div class="col-2 px-1 text-center">
+            <input type="radio" id="{{ med.id }}" name="selecting_med" value="{{ med.id }}">
+            {{med.name}}
+         </div>
+         {% endfor %}
+         <div class="col-12 py-2">
+            <input type="hidden" name="submit" value="1">
+             <button type="submit" class="btn btn-danger">Delete</button>
+         </div>
+      </div>
+   </form>
+</div>
 {% endblock %}
 

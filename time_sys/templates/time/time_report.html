@@ -1,29 +1,195 @@
 {% extends 'base.html' %}
 {% block content %}
 {% load humanize %}
+{% load range_filter %}
+<style>
+.toggle-tab {
+    border: 1px solid #BBB;
+    background-color: white;
+    color: grey;
+    cursor: pointer;
+    padding: 10px;
+    transition: 0.0s;
+}
+
+.toggle-tab.active {
+    border: 1px solid #BBB;
+    background-color: #EEE;
+    color: black;
+    font-weight: bold;
+}
+
+
+/* Make this div relative to contain absolutely positioned elements */
+.position-relative {
+    position: relative;
+    overflow: hidden;  /* Prevent background from overflowing */
+}
+
+/* Background big date */
+.bg-text {
+    position: absolute;
+    top: 0px;
+    left: -5px;
+    font-size: 50px;
+    color: rgba(0, 0, 0, 0.2);  /* Light transparent black */
+    font-weight: bold;
+    white-space: nowrap;
+    pointer-events: none;  /* Allow clicks to go through */
+    z-index: 0;
+}
+
+/* Foreground content */
+.foreground-content {
+    position: relative;
+    z-index: 1;  /* Put above the background */
+}
+
+</style>
+
+
 <div class="container mt-4">
-  <h2>Monthly Time Reports</h2>
-  {% for report in report_data %}
-    <div class="card my-3 p-3">
-      <h4>{{ report.month }}</h4>
-      <p><strong>Total Duration:</strong> {{ report.total_duration|floatformat:0|intcomma }} seconds</p>
-      <h5>Types:</h5>
-      <ul>
-        {% for type, list in report.type_percent.items %}
-        {% with dur=list.0 percent=list.1 %}
-          <li>{{ type }}: {{ dur|intcomma }} min, {{ percent }}%</li>
-        {% endwith %}
-        {% endfor %}
-      </ul>
-      <h5>Tags:</h5>
-      <ul>
-        {% for tag, list in report.tag_percent.items %}
-        {% with dur=list.0 percent=list.1 %}
-          <li>{{ tag }}: {{ dur|intcomma }} min, {{ percent }}%</li>
-        {% endwith %}
-        {% endfor %}
-      </ul>
+<!-- -------------------------------------- -->
+<!-- Toggle button -->
+<!-- -------------------------------------- -->
+<div class="row">
+    <div id="daily" class="col-6 text-center toggle-tab active" onclick="toggleTab('daily')">
+        Daily Review
     </div>
-  {% endfor %}
+    <div id="monthly" class="col-6 text-center toggle-tab" onclick="toggleTab('monthly')">
+        Monthly Reports
+    </div>
 </div>
+
+
+<!-- -------------------------------------- -->
+<!-- Daily -->
+<!-- -------------------------------------- -->
+<div id="daily_report" class="row">
+    <div class="card my-3 py-0">
+        {% for date, tags in reports_first.day_pr_data.items %}
+            <div class="row b position-relative">
+                <div class="bg-text">
+                    {{ date|slice:"8:10" }}
+                </div>
+
+                <div class="col-2 px-0 b foreground-content">
+                    {% for rec in health_records %}
+                        {% if rec.day == date %}
+                            {% for w in rec.weight.values %}
+                                {% if forloop.counter <= 2 %}
+                                    {% if not w.0 %}
+                                    -
+                                    {% endif %}
+                                    {{ w.0 }}
+                                {% endif %}
+                            {% endfor %}
+                            <br />
+                            {% for w in rec.weight.values %}
+                                {% if forloop.counter > 2 %}
+                                    {% if not w.0 %}
+                                    --.-
+                                    {% endif %}
+                                    {{ w.0 }}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <div class="col-9 b py-2 ps-1 d-flex">
+                    {% for tag in pr_tags %}
+                    <svg class="my-1" width="40" height="40" viewBox="-50 -50 100 100">
+                        {% if tag.tag in tags %}
+                        <circle cx="0" cy="0" r="45" stroke="black" stroke-width="1" fill="black" />
+                        <text y="15" text-anchor="middle" fill="white" font-size="40">{{ tag.tag|slice:":3"|upper }}</text>
+                        {% else %}
+                        <circle cx="0" cy="0" r="45" stroke="black" stroke-width="1" fill="white" />
+                        <text y="15" text-anchor="middle" fill="black" font-size="40">{{ tag.tag|slice:":3"|upper }}</text>
+                        {% endif %}
+                    </svg>
+                    {% endfor %}
+                </div>
+
+                <div class="col-1 b text-center px-0 py-2">
+                    {% for i in count_med_tags|get_range %}
+                        {% with done=medicine_done|dict_get:date|default:0 %}
+                            {% if i < done %}
+                                <!-- filled black circle -->
+                                <svg width="10" height="12" viewBox="-50 -50 100 100">
+                                    <circle cx="0" cy="0" r="45" stroke="black" stroke-width="0" fill="black" />
+                                </svg>
+                            {% else %}
+                                <!-- empty white circle -->
+                                <svg width="10" height="12" viewBox="-50 -50 100 100">
+                                    <circle cx="0" cy="0" r="45" stroke="black" stroke-width="4" fill="#fff" />
+                                </svg>
+                            {% endif %}
+                        {% endwith %}
+                    {% endfor %}
+                </div>
+
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+
+<!-- -------------------------------------- -->
+<!-- Monthly -->
+<!-- -------------------------------------- -->
+<div id="monthly_report" class="row" style="display: none;">
+    <div class="col-12">
+        {% for report in report_data %}
+        <div class="card my-3 p-3">
+            <h4>{{ report.month }}</h4>
+            <p><strong>Total Duration:</strong> {{ report.total_duration|floatformat:0|intcomma }} seconds</p>
+            <h5>Types:</h5>
+            <ul>
+                {% for type, list in report.type_percent.items %}
+                {% with dur=list.0 percent=list.1 %}
+                <li>{{ type }}: {{ dur|intcomma }} min, {{ percent }}%</li>
+                {% endwith %}
+                {% endfor %}
+            </ul>
+            <h5>Tags:</h5>
+            <ul>
+            {% for tag, list in report.tag_percent.items %}
+            {% with dur=list.0 percent=list.1 %}
+                <li>{{ tag }}: {{ dur|intcomma }} min, {{ percent }}%</li>
+            {% endwith %}
+            {% endfor %}
+            </ul>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<!-- -------------------------------------- -->
+<!-- END -->
+<!-- -------------------------------------- -->
+</div>
+
+
+<script>
+function toggleTab(tab) {
+    const tabs = ['daily', 'monthly'];
+    const reports = ['daily_report', 'monthly_report'];
+
+    tabs.forEach(id => {
+        const el = document.getElementById(id);
+        const report = document.getElementById(id + '_report');
+
+        if (id === tab) {
+            el.classList.add('active');
+            report.style.display = 'block';
+        } else {
+            el.classList.remove('active');
+            report.style.display = 'none';
+        }
+    });
+}
+</script>
+
+
 {% endblock %}

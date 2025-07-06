@@ -3,6 +3,7 @@ from .models import TimeRecord, TimeReport
 from django.utils import timezone
 from collections import defaultdict
 import pytz
+import math
 
 
 import re
@@ -49,7 +50,7 @@ def month_jump(last_utc, this_utc):
 
 
 
-def generate_monthly_report(k):
+def generate_monthly_report(k,first_checkout_dic):
     from django.db.models.functions import TruncMonth
     from django.db.models import Sum
 
@@ -131,5 +132,69 @@ def generate_monthly_report(k):
                 "total_duration": total_duration,
                 "tag_data": dict(tag_data),
                 "type_data": dict(type_data),
+                "day_pr_data": dict(first_checkout_dic),
             }
         )
+
+
+
+def generate_wheel(n, length, thickness1, thickness2):
+    angle_deg = 360/n/2
+    angle_rad = math.radians(angle_deg)
+    angle_rad2 = 2*math.radians(angle_deg)
+    tri_o = [0, 0]
+    tri_a = [length, 0]
+    tri_b = [length*math.cos(angle_rad2), length*math.sin(angle_rad2)]
+
+    tri_o1 = [thickness1/math.tan(angle_rad), thickness1]
+    inner_length = length - thickness1 / math.tan(angle_rad) - thickness1 * math.tan(angle_rad) - thickness2 / math.cos(angle_rad)
+    tri_a1 = [thickness1 / math.tan(angle_rad) + inner_length, thickness1]
+    tri_b1 = [
+        thickness1 / math.tan(angle_rad) + inner_length * math.cos(angle_rad2),
+        thickness1 + inner_length * math.sin(angle_rad2)
+    ]
+
+    n_set = {}
+
+    for f in range(n):
+        rotation_angle = math.radians(360 / n * f)
+
+        n_set['tri{}'.format(f)] = [
+            angle_rotate(rotation_angle,tri_o),
+            angle_rotate(rotation_angle,tri_a),
+            angle_rotate(rotation_angle,tri_b)
+        ]
+
+        n_set['tri_s{}'.format(f)] = [
+            angle_rotate(rotation_angle, tri_o1),
+            angle_rotate(rotation_angle, tri_a1),
+            angle_rotate(rotation_angle, tri_b1)
+        ]
+
+    return n_set
+
+
+def generate_wheel_with_rotation(n, length, thickness1, thickness2, pr_tags):
+    wheel = generate_wheel(n, length, thickness1, thickness2)
+    result = []
+    angle_per = 360 / n
+
+    # Only for the main triangles (e.g., those with keys like "tri0", "tri1", etc.)
+    for i in range(n):
+        tri = wheel.get(f'tri_s{i}')
+        angle = i * angle_per + angle_per / 2
+        result.append({'points': tri,
+                       'angle': angle,
+                       'pr_tags': pr_tags[i],
+                       'id': i+1,
+                       })
+
+    return result
+
+
+
+def angle_rotate(angle_rad, point):
+    x, y = point
+    x_new = round(x * math.cos(angle_rad) - y * math.sin(angle_rad))
+    y_new = round(x * math.sin(angle_rad) + y * math.cos(angle_rad))
+    return [x_new, y_new]

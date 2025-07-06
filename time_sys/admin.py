@@ -1,9 +1,11 @@
 from django.contrib import admin
-from .models import TimeTag, TimeRecord, TimeReport
+from .models import TimeTag, TimeRecord, TimeReport, HealthMedicineTag, HealthRecord
 
 admin.site.register(TimeRecord)
 admin.site.register(TimeTag)
 admin.site.register(TimeReport)
+admin.site.register(HealthMedicineTag)
+admin.site.register(HealthRecord)
 
 class TimeRecordAdmin(admin.ModelAdmin):
     model = TimeRecord

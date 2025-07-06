@@ -1,71 +1,144 @@
 {% extends 'base.html' %}
 {% block content %}
 {% load tz %}
-<!-- -------------------------------------- -->
-<!-- Del record -->
-<!-- -------------------------------------- -->
-<form method="POST" class="form-register" id="my_form">
-{% csrf_token %}
-<input type="hidden" name="form_type" value="del">
-<div class="container-fluid px-2" style="font-size:12px">
-   <div class="row">
-    <div class="col-12">
-        <table class="table border border-1">
-            <thead>
-               <tr>
-                  <th scope="col">{{ timezone }}</th>
-                  <th scope="col">Duration</th>
-                  <th scope="col">Tag</th>
-                  <th scope="col">Type</th>
-                  <th scope="col"></th>
-               </tr>
-            </thead>
-            <tbody>
-               {% for record in records %}
-               <tr>
-                  {% timezone request.user.profile.timezone %}
-                  <td>{{ record.end|date:"Y.m.d | H:i:s" }}</td>
-                  {% endtimezone %}
-                  <td>{{ record.formatted_duration }}</td>
-                  <td>{{ record.tag }}</td>
-                  <td>{{ record.type }}</td>
-                  <td>
-                     <input style="display:none" name="del_id" id="ch{{ record.id }}" type="radio" value="{{ record.id }}">
-                     <a href="javascript:{}" onclick="
-                           document.getElementById('ch{{ record.id }}').checked = true;
-                           document.getElementById('my_form').submit();
-                           ">x</a>
-                  </td>
-               </tr>
-               {% endfor %}
-            </tbody>
-         </table>
-    </div>
-   </div>
-</div>
-</form>
+<style>
+  svg polygon {
+    stroke: black;
+    transition: fill 0.3s;
+  }
+
+  svg text {
+    text-anchor: middle;
+    fill: black;
+    font-size: 200px;
+    font-weight: bold;
+    font-family: Arial;
+    transition: fill 0.3s;
+  }
+
+  .filled {
+    fill: black;
+  }
+
+  .white-text {
+    fill: white;
+  }
+
+    a {
+  text-decoration: none;
+}
+
+.form-control{
+    width: 150px;
+}
+</style>
 
 
-
-
-<!-- -------------------------------------- -->
-<!-- Check Out -->
-<!-- -------------------------------------- -->
 <form method="POST" class="form-register">
 {% csrf_token %}
 <input type="hidden" name="form_type" value="checkout">
+<input type="hidden" name="time_tag" id="time_tag_input" value="">
 
-<!-- Manual Time -------------------------------- -->
+<div class="container text-center">
+    <div class="row">
+        <!-- -------------------------------------- -->
+        <!-- Polygon -->
+        <!-- -------------------------------------- -->
+        <div class="col-10">
+            <svg width="350" height="350" viewBox="-2000 -2000 4000 4000">
+            <!-- -------------------------------------- -->
+            <!-- Polygon Outer Stroke -->
+            <!-- -------------------------------------- -->
+            {% for name, tri in wheel_ring.items %}
+                {% if not name|slice:"3:4" == "_" %}
+                    <polygon points="
+                    {{ tri.0.0 }},{{ tri.0.1 }}
+                    {{ tri.1.0 }},{{ tri.1.1 }}
+                    {{ tri.2.0 }},{{ tri.2.1 }}" fill="black" />
+                {% else %}
+                    <polygon points="
+                    {{ tri.0.0 }},{{ tri.0.1 }}
+                    {{ tri.1.0 }},{{ tri.1.1 }}
+                    {{ tri.2.0 }},{{ tri.2.1 }}" fill="white" />
+                {% endif %}
+            {% endfor %}
+            <!-- -------------------------------------- -->
+            <!-- Polygon Inner Triangle -->
+                    <!--[{-->
+                    <!--'points': [[249, 120], [1809, 120], [1222, 1340]], -->
+                    <!--'angle': 25.714285714285715, -->
+                    <!--'pr_tags': <TimeTag: admin - sport>, -->
+                    <!--'id': 1-->
+                    <!--}, ...]-->
+            <!-- -------------------------------------- -->
+            {% for item in wheel_fill %}
+                <g onclick="submitTag('{{item.pr_tags.tag}}-{{item.pr_tags.type}}', this)"
+                   data-clicked="false"
+                   style="cursor: pointer;"
+                >
+                    <polygon id="section{{item.id}}"
+                             stroke-width="10"
+                             fill="white"
+                             points="
+                             {{ item.points.0.0 }},{{ item.points.0.1 }}
+                             {{ item.points.1.0 }},{{ item.points.1.1 }}
+                             {{ item.points.2.0 }},{{ item.points.2.1 }}"
+                             />
+                    <text id="text{{item.id}}"
+                          x="1080" y="50"
+                          text-anchor="middle"
+                          transform="rotate({{ item.angle|floatformat:0 }} 0 0)"
+                    >
+                        {{ item.pr_tags.tag }}
+                    </text>
+                </g>
+            {% endfor %}
+            </svg>
+        </div>
+        <!-- ------------------------------------- -->
+        <!-- Medicine Button -->
+        <!-- ------------------------------------- -->
+        <div class="col-2">
+            {% for med in med_names %}
+            <div class="row">
+                <g onclick="submitMed('{{med.name}}')"
+                   data-clicked="false"
+                   style="cursor: pointer;">
+                <svg class="" width="50" height="50" viewBox="-50 -50 100 100">
+                    <circle id="circle{{med.name}}" cx="0" cy="0" r="45" stroke="black" stroke-width="4" fill="white" />
+                    <text id="med{{med.name}}" text-anchor="middle" style="font-size: 30px;" dy="7">{{ med.name }}</text>
+                </svg>
+                </g>
+            </div>
+            {% endfor %}
+        </div>
+        <!-- END---------------------------------- -->
+    </div>
+</div>
+
+
+
+<!-- ------------------------------------- -->
+<!-- Switch -->
+<!-- ------------------------------------- -->
 <div class="container-fluid text-center border-bottom mt-1 pb-1 mb-2" >
     <div class="row" >
         <div class="col-12 text-center">
             <div class="ms-2" style="float:left;">Manually Change Time:</div>
             <div class="col-6 form-check form-switch ms-3" style="float:left">
-                    <input class="form-check-input" type="checkbox" name="time_switch" id="switch" value="1" onclick="myFunction()"/>
+                <input id="switch_btn"
+                       onclick="switchFunction()"
+                       name="time_switch"
+                       class="form-check-input"
+                       type="checkbox"
+                />
             </div>
         </div>
         {% timezone request.user.profile.timezone %}
-        <div class="col-12 pt-2 pb-1" id="calendar" style="display:none;">
+        <div id="calendar"
+             class="col-12 pt-2 pb-1"
+             style="display:none;"
+        >
             Input time can't be earlier than <strong>{{ last|date:'Y-m-d H:i' }}</strong>
             <br/>
             current time is <strong>{{ now|date:'Y-m-d H:i' }}</strong>
@@ -77,27 +150,18 @@
 </div>
 <!-- END -------------------------------- -->
 
-<!-- Auto Time -------------------------------- -->
-<div class="container-fluid">
+<!-- ------------------------------------- -->
+<!-- Checkout -->
+<!-- ------------------------------------- -->
+<div class="container-fluid b" style="display:1;">
     <div class="row ps-2" style="font-weight:bold;color:#999">
         <div class="col-4 pe-0 title_time">Unproductive</div>
-        <div class="col-4 pe-0 title_time">Productive</div>
         <div class="col-4 pe-0 title_time">Rest</div>
     </div>
     <div class="row mb-2 ps-2">
         <div class="col-4 pe-0">
             {% for tag in tags %}
             {% if tag.type == 'UN' %}
-                <div class="col text_d_title pt-1">
-                   <input type="radio" id="{{ tag.tag }}" name="time_tag" value="{{ tag.tag }}-{{ tag.type }}">
-                   <label for="{{ tag.tag }}">{{tag.tag}}</label>
-               </div>
-            {% endif %}
-            {% endfor %}
-        </div>
-        <div class="col-4 pe-0">
-            {% for tag in tags %}
-            {% if tag.type == 'PR' %}
                 <div class="col text_d_title pt-1">
                    <input type="radio" id="{{ tag.tag }}" name="time_tag" value="{{ tag.tag }}-{{ tag.type }}">
                    <label for="{{ tag.tag }}">{{tag.tag}}</label>
@@ -115,45 +179,205 @@
             {% endif %}
             {% endfor %}
         </div>
-    </div>
-</div>
-<!-- END -------------------------------- -->
-<div class="container text-center" >
-    <div class="row">
-<!--        <div class="col-12 pt-0" style="position: fixed; right:0px; bottom:20px; z-index:100">-->
-        <div class="col-12 pt-0" style="">
+        <div class="col-4 pe-0">
             <input type="hidden" name="submit_start" value="1">
             <button type="submit" class="btn btn-secondary mb-3">check out</button>
         </div>
-
     </div>
 </div>
+<!-- END -------------------------------- -->
 
+
+
+<!-- -------------------------------------- -->
+<!-- Record & Del -->
+<!-- -------------------------------------- -->
+
+<div class="container-fluid pt-3 b" style="font-size:12px">
+<form method="POST" class="form-register" id="my_form">
+{% csrf_token %}
+<input type="hidden" name="form_type" value="del">
+<div class="row">
+    <div class="col-12">
+        <table class="table border border-1">
+            <thead>
+               <tr>
+                  <th scope="col">{{ timezone }}</th>
+                  <th scope="col">Duration</th>
+                  <th scope="col">Tag</th>
+                  <th scope="col">Type</th>
+                  <th scope="col"></th>
+               </tr>
+            </thead>
+            <tbody>
+               {% for record in records %}
+               <tr>
+                  {% timezone request.user.profile.timezone %}
+                  <td>{{ record.end|date:"d | H:i:s" }}</td>
+                  {% endtimezone %}
+                  <td>{{ record.formatted_duration }}</td>
+                  <td>{{ record.tag }}</td>
+                  <td>{{ record.type }}</td>
+                  <td>
+                     <input style="display:none" name="del_id" id="ch{{ record.id }}" type="radio" value="{{ record.id }}">
+                     <a href="javascript:{}" onclick="
+                           document.getElementById('ch{{ record.id }}').checked = true;
+                           document.getElementById('my_form').submit();
+                           ">x</a>
+                  </td>
+               </tr>
+               {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+</form>
+</div>
+
+
+
+
+<!-- -------------------------------------- -->
+<!-- Medicine Form -->
+<!-- -------------------------------------- -->
+<form id="medicineForm" method="POST" class="form-register">
+{% csrf_token %}
+    <input type="hidden" name="form_type" value="medicine">
+    <input type="hidden" id="med_name_input" name="med_name" value="">
 </form>
 
 
+
+
+
+<!-- -------------------------------------- -->
+<!-- Weight Form -->
+<!-- -------------------------------------- -->
+<div class="container mb-5 b" >
+<div class="row">
+        <div class="col-4 text-center" style="">
+        <form id="weightForm" method="POST" class="form-register">
+        {% csrf_token %}
+            <input type="hidden" name="form_type" value="weight">
+            <input type="hidden" id="" name="med_name" value="">
+            <a class="text-center" href="javascript:{}" onclick="
+                           document.getElementById('weightForm').submit();
+                           ">
+                <div class="mt-2" style="height:50px; font-weight:bold">UPDATE</div>
+            </a>
+            {{form_weight.as_p}}
+        </form>
+        </div>
+<!--        <div class="col-1 text-center" style=""></div>-->
+        <div class="col-8">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:100px;">
+
+                    </th>
+                    <th class="text-center" style="width:120px; height:48px">
+                        body (kg)
+                    </th>
+                    <th>
+                        fat (kg)
+                    </th>
+                </tr>
+            </thead>
+            <tbody style="margin-top:50px;">
+            {% for key, value in weight_display.items %}
+                <tr class="" style="height:55px">
+                    <th class="text-end" style="font-weight:normal">{{key}}</th>
+                {% if value|length == 1 %}
+                    <th class="text-center">{{ value.0 }}</th><th class="text-center">-</th>
+                {% else %}
+                    <th class="text-center">{{ value.0 }}</th><th class="text-center">{{ value.2 }}</th>
+                {% endif %}
+                    </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
+
+
+
+
+
+
+
+
+
+
 <script type="text/javascript">
-   document.getElementById("time1").style.backgroundColor = "#fff";
-   document.getElementById("time1").firstChild.style.color = "#000";
-   document.getElementById("time1").firstChild.style.fontWeight = "bold"
+// -------------------------------------
+// Switch
+// -------------------------------------
+function switchFunction() {
+    var switch_btn = document.getElementById("switch_btn");
+    var text = document.getElementById("calendar");
 
-    function myFunction() {
-  // Get the checkbox
-        var checkBox = document.getElementById("switch");
-  // Get the output text
-        var text = document.getElementById("calendar");
-
-  // If the checkbox is checked, display the output text
-  if (checkBox.checked == true){
-    checkBox.value = 1
-    text.style.display = "block";
-  } else {
-    text.style.display = "none";
-  }
+    if (switch_btn.checked == true){
+        text.style.display = "block";
+      } else {
+        text.style.display = "none";
+      }
 }
-</script>
 
+
+// -------------------------------------
+// polygon submission
+// -------------------------------------
+function submitTag(tagValue) {
+  const input = document.getElementById("time_tag_input");
+  input.value = tagValue;
+  input.form.submit();
+}
+
+
+const activeTags = {{ today_tags|safe }};  // Already passed from Django
+const tagToId = {{ tag_to_id|safe }};      // Example: { "french": 1, "dance": 2, ... }
+
+activeTags.forEach(tag => {
+    const lowerTag = tag.toLowerCase();
+    const id = tagToId[lowerTag];
+    if (id !== undefined) {
+      document.getElementById(`section${id}`)?.classList.add('filled');
+      document.getElementById(`text${id}`)?.classList.add('white-text');
+    }
+});
+
+
+
+// -------------------------------------
+// Medicine submission
+// -------------------------------------
+function submitMed(medValue) {
+    // Set the value to the hidden input
+    document.getElementById('med_name_input').value = medValue;
+    document.getElementById('medicineForm').submit();
+}
+
+const activeMeds = {{ today_meds|safe }};  // Already passed from Django
+
+activeMeds.forEach(name => {
+    if (name !== undefined) {
+      document.getElementById(`circle${name}`)?.classList.add('filled');
+      document.getElementById(`med${name}`)?.classList.add('white-text');
+    }
+});
+</script>
 {% endblock %}
+
+
+
+
+
+
+
+
 
 
 

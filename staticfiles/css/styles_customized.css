@@ -85,3 +85,8 @@ search bar, adjustment
   --bs-nav-link-padding-y: 0.2rem;
 }
 
+.b{
+    border:1px solid #eee;
+    //border-bottom:1px solid #333;
+}
+
