@@ -309,10 +309,12 @@ def time_checkout(request):
     # ----------------------------------#
     # Medicine & Active
     # ----------------------------------#
-    today_meds = HealthRecord.objects.filter(
-                    day=this_utc_ymd_str,
-                    user=user_instance,
-                ).first().medicine
+    health_record, created = HealthRecord.objects.get_or_create(
+        day=this_utc_ymd_str,
+        user=user_instance,
+        defaults={'weight': {}, 'medicine': []}
+    )
+    today_meds = health_record.medicine
     # END ------------------------------#
 
 
