@@ -472,7 +472,7 @@ def time_download(request):
     for r in records:
         ws.append([
             r.id,
-            request.user.id,
+            r.user.id,
             localtime(r.end).strftime('%Y-%m-%d %H:%M:%S'),
             r.end.astimezone(user_tz).strftime('%Y-%m-%d %H:%M:%S'),
             r.formatted_duration,
