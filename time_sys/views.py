@@ -209,7 +209,6 @@ def time_checkout(request):
             # END ------------------------------#
 
 
-
             # ----------------------------------#
             # Weight Form #
             # ----------------------------------#
@@ -235,55 +234,53 @@ def time_checkout(request):
                         elif len(parts) == 1:
                             weight = float(parts[0])
                             return [weight]
+                        elif len(parts) == 3:
+                            # Already split values, return as floats
+                            return [float(parts[0]), float(parts[1]), float(parts[2])]
                         else:
                             return None  # Invalid format
                     except ValueError:
                         return None  # If not numeric input, ignore
 
                 # Build the weight dict
-                weight_data = {
-                    "morning":[],
-                    "before lunch":[],
-                    "after lunch":[],
-                    "sleep":[]
-                    }
-                if parsed := parse_weight_entry(weight_morning_raw):
-                    weight_data["morning"] = parsed
-                    #// What you’re seeing is called the walrus operator (:=)
-                    #// # Traditional way
-                        #1 result = parse_weight_entry(weight_morning_raw)
-                        #2 if result:
-                        #3     print(result)
-                        # Walrus operator
-                        #1 if (result := parse_weight_entry(weight_morning_raw)):
-                        #2     print(result)
-                if parsed := parse_weight_entry(weight_beforelunch_raw):
-                    weight_data["before lunch"] = parsed
-                if parsed := parse_weight_entry(weight_afterlunch_raw):
-                    weight_data["after lunch"] = parsed
-                if parsed := parse_weight_entry(weight_sleep_raw):
-                    weight_data["sleep"] = parsed
+                # Get or create
+                health_record, created = HealthRecord.objects.get_or_create(
+                    day=this_utc_ymd_str,
+                    user=user_instance,
+                    defaults={'weight': {}, 'medicine': []}
+                )
 
-                if weight_data:
-                    health_record, created = HealthRecord.objects.get_or_create(
-                        day=this_utc_ymd_str,
-                        user=user_instance,
-                        defaults={
-                            'weight':{
-                                "morning":[],
-                                "before lunch":[],
-                                "after lunch":[],
-                                "sleep":[]
-                                },
-                            'medicine': []}
-                    )
+                existing_weight = health_record.weight or {}
 
-                    # Merge with existing data
-                    existing_weight = health_record.weight or {}
-                    existing_weight.update(weight_data)
+                # Initialize all keys, preserve previous data
+                final_weight = {
+                    "morning": existing_weight.get("morning", []),
+                    "before lunch": existing_weight.get("before lunch", []),
+                    "after lunch": existing_weight.get("after lunch", []),
+                    "sleep": existing_weight.get("sleep", [])
+                }
 
-                    health_record.weight = existing_weight
-                    health_record.save()
+                # Update only submitted fields
+                if weight_morning_raw:
+                    final_weight["morning"] = parse_weight_entry(weight_morning_raw)
+                    # // What you’re seeing is called the walrus operator (:=)
+                    # // # Traditional way
+                    # 1 result = parse_weight_entry(weight_morning_raw)
+                    # 2 if result:
+                    # 3     print(result)
+                    # Walrus operator
+                    # 1 if (result := parse_weight_entry(weight_morning_raw)):
+                    # 2     print(result)
+                if weight_beforelunch_raw:
+                    final_weight["before lunch"] = parse_weight_entry(weight_beforelunch_raw)
+                if weight_afterlunch_raw:
+                    final_weight["after lunch"] = parse_weight_entry(weight_afterlunch_raw)
+                if weight_sleep_raw:
+                    final_weight["sleep"] = parse_weight_entry(weight_sleep_raw)
+
+                # Save
+                health_record.weight = final_weight
+                health_record.save()
 
                 return redirect('time_checkout')
             # END ------------------------------#
@@ -298,8 +295,6 @@ def time_checkout(request):
     # 2 latest Time Records
     # ----------------------------------#
     records = TimeRecord.objects.filter(user=user_instance).order_by('-id')[:2]
-
-
 
 
     # ----------------------------------#
@@ -321,8 +316,6 @@ def time_checkout(request):
     # END ------------------------------#
 
 
-
-
     # ----------------------------------#
     # Medicine & Active
     # ----------------------------------#
@@ -333,8 +326,6 @@ def time_checkout(request):
     )
     today_meds = health_record.medicine
     # END ------------------------------#
-
-
 
 
     # ----------------------------------#
@@ -387,12 +378,6 @@ def time_checkout(request):
         'med_names': med_names,
     }
     return render(request, 'time/time_checkout.html', context)
-
-
-
-
-
-
 
 
 
@@ -454,10 +439,6 @@ def ajax_records_toggle(request):
 
 
 
-
-
-
-
 import openpyxl
 from django.http import HttpResponse
 @login_required
@@ -496,8 +477,6 @@ def time_download(request):
     response['Content-Disposition'] = 'attachment; filename=time_records.xlsx'
     wb.save(response)
     return response
-
-
 
 
 
@@ -548,11 +527,6 @@ def upload_excel(request):
 
 
 
-
-
-
-
-
 @login_required
 def time_report(request):
     user_instance = request.user
@@ -595,9 +569,6 @@ def time_report(request):
         'count_med_tags': count_med_tags
     }
     return render(request, 'time/time_report.html', context)
-
-
-
 
 
 
@@ -691,4 +662,3 @@ def time_settings(request):
     }
 
     return render(request, 'time/time_settings.html', context)
-
