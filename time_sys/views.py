@@ -62,7 +62,7 @@ def time_checkout(request):
         return redirect('time_settings')
 
     # ----------------------------------#
-    # Start Record #
+    # Initial Record #
     # ------------ ---- ---------------#
     if not record_qs.exists():
         TimeRecord.objects.create(
@@ -173,7 +173,7 @@ def time_checkout(request):
                 time_report_pr.save()
                 # END ------------------------------#
 
-                return redirect('time_checkout')
+                return redirect('time_report')
             # END ------------------------------#
 
 
@@ -205,7 +205,7 @@ def time_checkout(request):
                 # Assign the updated dict back and save
                 health_record.medicine = medicine_data
                 health_record.save()
-                return redirect('time_checkout')
+                return redirect('time_report')
             # END ------------------------------#
 
 
