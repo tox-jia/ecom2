@@ -354,6 +354,21 @@ def time_checkout(request):
             'weight_Sleep': list_to_string(weight.get('sleep')),
         }
 
+        # 👉 Reorder the keys here:
+        ordered_weight = {
+            "morning": weight.get("morning", []),
+            "before lunch": weight.get("before lunch", []),
+            "after lunch": weight.get("after lunch", []),
+            "sleep": weight.get("sleep", [])
+        }
+    else:
+        ordered_weight = {
+            "morning": [],
+            "before lunch": [],
+            "after lunch": [],
+            "sleep": []
+        }
+
     # Pass the initial data to the form
     form_weight = WeightForm(initial=initial_weight_data)
     # ----------------------------------#
@@ -367,7 +382,7 @@ def time_checkout(request):
         'form': form,
         'form_del':form_del,
         'form_weight': form_weight,
-        'weight_display': health_record.weight if health_record else {},
+        'weight_display': ordered_weight,
         'tags': tags,
         'timezone': timezone_display(request.user.profile),
         'now': this_utc,
