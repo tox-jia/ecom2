@@ -241,7 +241,12 @@ def time_checkout(request):
                         return None  # If not numeric input, ignore
 
                 # Build the weight dict
-                weight_data = {}
+                weight_data = {
+                    "morning":[],
+                    "before lunch":[],
+                    "after lunch":[],
+                    "sleep":[]
+                    }
                 if parsed := parse_weight_entry(weight_morning_raw):
                     weight_data["morning"] = parsed
                     #// What you’re seeing is called the walrus operator (:=)
@@ -263,7 +268,14 @@ def time_checkout(request):
                     health_record, created = HealthRecord.objects.get_or_create(
                         day=this_utc_ymd_str,
                         user=user_instance,
-                        defaults={'weight': {}, 'medicine': []}
+                        defaults={
+                            'weight':{
+                                "morning":[],
+                                "before lunch":[],
+                                "after lunch":[],
+                                "sleep":[]
+                                },
+                            'medicine': []}
                     )
 
                     # Merge with existing data
