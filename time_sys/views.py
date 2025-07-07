@@ -459,7 +459,7 @@ def time_download(request):
     # Query records
     # Determine which records to fetch
     if request.user.is_superuser:
-        records = TimeRecord.objects.all().order_by('-end')
+        records = TimeRecord.objects.all().order_by('id')
     else:
         records = TimeRecord.objects.filter(user=request.user).order_by('-end')
     tz_str = request.user.profile.timezone
@@ -584,34 +584,6 @@ def time_report(request):
         'count_med_tags': count_med_tags
     }
     return render(request, 'time/time_report.html', context)
-#
-#
-#
-#
-#
-#
-#     # ----------------------------------#
-#     # Weight
-#     # ----------------------------------#
-#     year_month = this_utc_ymd_str[:7]  # "2025-07"
-#     health_record = HealthRecord.objects.filter(
-#         user=user_instance,
-#         day__startswith=year_month  # e.g., "2025-07"
-#     ).order_by('-id')
-#     # health_record = HealthRecord.objects.filter(day=this_utc_ymd_str, user=user_instance).first()
-#
-#     # END -------------------------------#
-#
-#
-#     context = {
-#         'reports_first':reports_first,
-#         'pr_tags': pr_tags,
-#         'report_data': report_data,
-#         'timezone': timezone_display(request.user.profile),
-#         'health_record': health_record,
-#     }
-#     return render(request, 'time/time_report.html', context)
-
 
 
 
