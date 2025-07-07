@@ -34,12 +34,13 @@
 </style>
 
 
+
+
+<div class="container text-center">
 <form method="POST" class="form-register">
 {% csrf_token %}
 <input type="hidden" name="form_type" value="checkout">
 <input type="hidden" name="time_tag" id="time_tag_input" value="">
-
-<div class="container text-center">
     <div class="row">
         <!-- -------------------------------------- -->
         <!-- Polygon -->
@@ -114,14 +115,10 @@
         </div>
         <!-- END---------------------------------- -->
     </div>
-</div>
 
-
-
-<!-- ------------------------------------- -->
-<!-- Switch -->
-<!-- ------------------------------------- -->
-<div class="container-fluid text-center border-bottom mt-1 pb-1 mb-2" >
+    <!-- ------------------------------------- -->
+    <!-- Switch -->
+    <!-- ------------------------------------- -->
     <div class="row" >
         <div class="col-12 text-center">
             <div class="ms-2" style="float:left;">Manually Change Time:</div>
@@ -147,13 +144,12 @@
         </div>
         {% endtimezone %}
     </div>
-</div>
-<!-- END -------------------------------- -->
+    <!-- END -------------------------------- -->
 
-<!-- ------------------------------------- -->
-<!-- Checkout -->
-<!-- ------------------------------------- -->
-<div class="container-fluid b" style="display:1;">
+
+    <!-- ------------------------------------- -->
+    <!-- Checkout -->
+    <!-- ------------------------------------- -->
     <div class="row ps-2" style="font-weight:bold;color:#999">
         <div class="col-4 pe-0 title_time">Unproductive</div>
         <div class="col-4 pe-0 title_time">Rest</div>
@@ -184,9 +180,9 @@
             <button type="submit" class="btn btn-secondary mb-3">check out</button>
         </div>
     </div>
+    <!-- END -------------------------------- -->
+</form>
 </div>
-<!-- END -------------------------------- -->
-
 
 
 <!-- -------------------------------------- -->
@@ -235,8 +231,6 @@
 </div>
 
 
-
-
 <!-- -------------------------------------- -->
 <!-- Medicine Form -->
 <!-- -------------------------------------- -->
@@ -245,9 +239,6 @@
     <input type="hidden" name="form_type" value="medicine">
     <input type="hidden" id="med_name_input" name="med_name" value="">
 </form>
-
-
-
 
 
 <!-- -------------------------------------- -->
@@ -303,14 +294,6 @@
 </div>
 
 
-
-
-
-
-
-
-
-
 <script type="text/javascript">
 // -------------------------------------
 // Switch
@@ -336,7 +319,6 @@ function submitTag(tagValue) {
   input.form.submit();
 }
 
-
 const activeTags = {{ today_tags|safe }};  // Already passed from Django
 const tagToId = {{ tag_to_id|safe }};      // Example: { "french": 1, "dance": 2, ... }
 
@@ -348,7 +330,6 @@ activeTags.forEach(tag => {
       document.getElementById(`text${id}`)?.classList.add('white-text');
     }
 });
-
 
 
 // -------------------------------------
@@ -370,15 +351,3 @@ activeMeds.forEach(name => {
 });
 </script>
 {% endblock %}
-
-
-
-
-
-
-
-
-
-
-
-
