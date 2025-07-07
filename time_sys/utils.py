@@ -50,6 +50,24 @@ def month_jump(last_utc, this_utc):
 
 
 
+
+def get_or_create_time_report(user, current_ym):
+    report = TimeReport.objects.filter(user=user, year_month=current_ym).first()
+    if not report:
+        report = TimeReport.objects.create(
+            user=user,
+            year_month=current_ym,
+            total_duration=0,
+            type_data={},
+            tag_data={},
+            day_pr_data={}
+        )
+    return report
+
+
+
+
+
 def generate_monthly_report(k,first_checkout_dic):
     from django.db.models.functions import TruncMonth
     from django.db.models import Sum

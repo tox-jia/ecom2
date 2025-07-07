@@ -14,7 +14,8 @@ import pytz
 from .models import TimeRecord, TimeTag, TimeReport, HealthMedicineTag, HealthRecord
 from .forms import (TimeCheckoutForm, SettingsForm, DeleteTagForm, RecordDel,
                     MedicineForm, DeleteMedForm, MedicineRecordForm, WeightForm)
-from .utils import timezone_display, month_jump, generate_wheel, generate_wheel_with_rotation, generate_monthly_report
+from .utils import (timezone_display, month_jump, generate_wheel, generate_wheel_with_rotation,
+                    generate_monthly_report, get_or_create_time_report)
 
 
 @login_required
@@ -35,10 +36,14 @@ def time_checkout(request):
     record_qs = TimeRecord.objects.filter(user=user_instance)
     checkout_time = timezone.now()
 
-    time_report_pr = TimeReport.objects.filter(user=user_instance).order_by('-id').first()
-    day_data = time_report_pr.day_pr_data
     this_utc = timezone.now()
     this_utc_ymd_str = this_utc.strftime('%Y-%m-%d')
+
+    this_ym = timezone.now().strftime('%Y-%m')
+    time_report_pr = get_or_create_time_report(user_instance, this_ym)
+    day_data = time_report_pr.day_pr_data
+
+
 
     if this_utc_ymd_str not in day_data:
         day_data[this_utc_ymd_str] = []
@@ -349,12 +354,6 @@ def time_checkout(request):
     # Pass the initial data to the form
     form_weight = WeightForm(initial=initial_weight_data)
     # ----------------------------------#
-
-
-
-
-
-
 
 
     context = {
