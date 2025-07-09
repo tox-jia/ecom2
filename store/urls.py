@@ -17,4 +17,5 @@ urlpatterns = [
     path('search/', views.search, name='search'),
 
     path('accounts/login/', views.google_login_redirect, name="google"),
+    path('card/', views.card, name='card'),
 ]

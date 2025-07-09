@@ -11,7 +11,7 @@
     <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-2 row-cols-xl-4 justify-content-center">
 
     {% for blogpost in blogposts %}
-    <div class="col-md-3 pb-4">
+    <div class="col-6 md-3 pb-4">
         <div class="card h-100 d-flex flex-column">
             <a class="unstyle_a_tag" href="{% url 'view_post' blogpost.id %}">
             <img class="card-img-top" src="{{ blogpost.image.url }}" alt="..."/>

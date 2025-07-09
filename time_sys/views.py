@@ -354,7 +354,12 @@ def time_checkout(request):
             'weight_Sleep': list_to_string(weight.get('sleep')),
         }
 
-        # 👉 Reorder the keys here:
+        # Reorder the keys here:
+        # // why the weitght data is saved as {"sleep": [72.1, 78.6, 56.67],
+        # "morning": [69.9, 21.6, 15.1], "after lunch": [], "before lunch": []} "sleep" should come the last
+        # By default, Python dictionaries (dict) preserve the insertion order since Python 3.7, but when you update
+        # or recreate them, the order depends on the order in which the keys are added to the dictionary,
+        # not on their alphabetical order.
         ordered_weight = {
             "morning": weight.get("morning", []),
             "before lunch": weight.get("before lunch", []),

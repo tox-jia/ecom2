@@ -17,6 +17,13 @@ from cart.cart import Cart
 from blog.models  import BlogPost
 
 
+
+
+
+def card(request):
+    return render(request, "card.html", {})
+
+
 def search(request):
     # determine if the user filled out the form
     if request.method == "POST":

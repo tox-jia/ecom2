@@ -38,20 +38,6 @@ class TimeTag(models.Model):
         return f'{self.user} - {self.tag}'
 
 
-# class TimeReport(models.Model):
-#     year_date = models.CharField(max_length=255, blank=True, null=True)
-#     type_sl = models.CharField(max_length=255)
-#     percent_sl = models.CharField(max_length=255)
-#     type_pr = models.CharField(max_length=255)
-#     percent_pr = models.CharField(max_length=255)
-#     type_un = models.CharField(max_length=255)
-#     percent_un = models.CharField(max_length=255)
-#     detail = models.CharField(max_length=255)
-#
-#     def __str__(self):
-#         return f'Report {self.year_date}'
-
-
 
 
 class TimeReport(models.Model):

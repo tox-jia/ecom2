@@ -119,7 +119,7 @@ def process_order(request):
                 product_id = product.id
                 # get product price
                 if product.is_sale:
-                    price = product.is_sale
+                    price = product.sale_price
                 else:
                     price = product.price
                 # get quantity
