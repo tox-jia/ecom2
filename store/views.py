@@ -70,7 +70,7 @@ def update_info(request):
             return redirect('update_info')
         return render(request, "update_info.html", {'form':form, 'shipping_form':shipping_form})
     else:
-        messages.danger(request, "You Must Be Logged In")
+        messages.error(request, "You Must Be Logged In")
         return redirect('home')
 
 

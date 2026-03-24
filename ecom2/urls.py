@@ -9,6 +9,7 @@ urlpatterns = [
     path('cart/', include('cart.urls')),
     path('payment/', include('payment.urls')),
     path('blog/', include('blog.urls')),
+    path('hostel/', include('hostel.urls')),
     path('time_sys/', include('time_sys.urls')),
     path('ckeditor5/', include('django_ckeditor_5.urls')),
 

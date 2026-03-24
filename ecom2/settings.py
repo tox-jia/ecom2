@@ -111,6 +111,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'cart',
     'store',
+    'hostel',
     'payment',
     'whitenoise.runserver_nostatic',
     'paypal.standard.ipn',

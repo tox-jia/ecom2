@@ -46,7 +46,7 @@
             </thead>
             <tbody id="record-table-body">
                {% for record in records_today %}
-               <tr{% if record.type == "PR" %} style="color: #F00"{% endif %}>
+               <tr>{% if record.type == "PR" %} style="color: #F00"{% endif %}>
                   {% timezone request.user.profile.timezone %}
                   <td>{{ record.end|date:"d | H:i:s" }}</td>
                   {% endtimezone %}
