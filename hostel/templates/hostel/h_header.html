@@ -1,0 +1,11 @@
+{% load url_filters %}
+<header>
+    <div class="container px-4 px-lg-5">
+        <nav>
+            {% for crumb in h_breadcrumbs %}
+                <a href="{{ crumb.url }}">{{ crumb.name }}</a>
+                {% if not forloop.last %} / {% endif %}
+            {% endfor %}
+        </nav>
+    </div>
+</header>

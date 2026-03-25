@@ -1,0 +1,47 @@
+{% extends 'hostel/base.html' %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <h1>{{ guest.givenname }} {{ guest.surname }}</h1>
+            Country: {{ guest.country }}
+            <br>
+            Booked from: {{ guest.platform }}
+            <br>
+            <br>
+                <img src="{{ guest.passport.url }}" width="100%"/>
+            <br>
+        </div>
+
+
+
+        <h2>Check-in Summary</h2>
+
+        <p>Name: {{ guest.givenname }} {{ guest.surname }}</p>
+        <p>Country: {{ guest.country }}</p>
+        <p>Platform: {{ guest.platform }}</p>
+
+        <img src="{{ guest.passport.url }}" width="200">
+
+        <hr>
+
+        <h3>Answers:</h3>
+
+        {% for key, value in answers.items %}
+          <p>Question {{ key }}: {{ value }}</p>
+        {% endfor %}
+
+
+
+
+
+
+
+
+
+    </div>
+</div>
+
+
+<br/><br/>
+{% endblock %}

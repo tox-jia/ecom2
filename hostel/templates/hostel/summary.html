@@ -1,0 +1,20 @@
+{% load custom_tags %}
+
+<h2>Check-in Summary</h2>
+
+<p><strong>Name:</strong> {{ guest.givenname }} {{ guest.surname }}</p>
+<p><strong>Country:</strong> {{ guest.country }}</p>
+<p><strong>Platform:</strong> {{ guest.platform }}</p>
+
+<img src="{{ guest.passport.url }}" width="200">
+
+<hr>
+
+<h3>Answers:</h3>
+
+{% for term in terms %}
+  <p>
+    {{ term.question }} →
+    {{ answers|get_item:term.id|stringformat:"s" }}
+  </p>
+{% endfor %}

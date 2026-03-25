@@ -21,7 +21,24 @@ class Guest(models.Model):
     country = models.CharField(max_length=30, blank=True)
     platform = models.CharField(max_length=30, blank=True)
     passport = CloudinaryField('image', blank=False, null=False)
+    terms_answers = models.JSONField(default=dict, blank=True)
 
     # for the admin section
     def __str__(self):
         return self.givenname
+
+
+
+
+class Term(models.Model):
+    ANSWER_CHOICES = [
+        ('yes', 'Yes'),
+        ('no', 'No'),
+    ]
+
+    question = models.CharField(max_length=255)
+    correct_answer = models.CharField(max_length=10, choices=ANSWER_CHOICES)
+    warning_message = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.question

@@ -1,0 +1,68 @@
+{% extends 'hostel/h_base.html' %}
+{% block content %}
+<div class="container">
+    <form method="POST" enctype="multipart/form-data" action="{% url 'checkin' %}">{% csrf_token %}
+    <br/>
+    <div class="row g-3">
+        <!-- Given Name -->
+        <div class="col-6 mb-3">
+            {{ form.givenname.label_tag }}
+            {{ form.givenname }}
+        </div>
+
+        <!-- Surname -->
+        <div class="col-6 mb-3">
+            {{ form.surname.label_tag }}
+            {{ form.surname }}
+        </div>
+
+        <!-- Country -->
+        <div class="col-6 mb-3">
+            {{ form.country.label_tag }}
+            {{ form.country }}
+        </div>
+
+        <!-- Platform (CUSTOM RADIO UI) -->
+        <div class="col-12 mb-3">
+            <label class="form-label">Platform</label>
+            <div class="d-flex gap-4">
+            {% for radio in form.platform %}
+              <div class="form-check">
+                {{ radio.tag }}
+                <label class="form-check-label">
+                  {{ radio.choice_label }}
+                </label>
+              </div>
+            {% endfor %}
+            </div>
+        </div>
+
+        <!-- passport -->
+        <div class="col-12 mb-3">
+            <label class="form-label">Passport:</label>
+            <span id="fileName" class="ms-2 text-muted">No file chosen</span>
+
+            <!-- Hidden real input -->
+            <input type="file" name="passport" id="passportInput" class="d-none">
+            <br>
+
+            <!-- Custom button -->
+            <label for="passportInput" class="btn btn-secondary">
+            Upload Photo
+            </label>
+
+            <!-- File name display -->
+
+        </div>
+    </div>
+    <br/>
+    <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+<script>
+document.getElementById('passportInput').addEventListener('change', function() {
+    const fileName = this.files[0]?.name || "No file chosen";
+    document.getElementById('fileName').textContent = fileName;
+});
+</script>
+{% endblock %}

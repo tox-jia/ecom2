@@ -11,22 +11,27 @@ class CheckinForm(forms.ModelForm):
         ('agoda', 'Agoda.com'),
     ]
 
-    givenname = forms.CharField(label="",
-                            widget=forms.TextInput(attrs={'class':'form-control'}),
+    givenname = forms.CharField(label="Given Name",
+                            widget=forms.TextInput(attrs={'class':'form-control',
+                                                          'placeholder':'Given Name'}),
                             required=True)
 
-    surname = forms.CharField(label="",
-                            widget=forms.TextInput(attrs={'class':'form-control'}),
+    surname = forms.CharField(label="Surname",
+                            widget=forms.TextInput(attrs={'class':'form-control',
+                                                          'placeholder':'Surname'}),
                             required=True)
 
     platform = forms.ChoiceField(
+        label="Platform",
         choices=PLATFORM_CHOICES,
-        widget=forms.Select(attrs={'class': 'form-control'}),
-        required=True
+        widget=forms.RadioSelect,
+        required=True,
+        initial='trip'
     )
 
-    country = forms.CharField(label="",
-                            widget=forms.TextInput(attrs={'class':'form-control'}),
+    country = forms.CharField(label="Nationality",
+                            widget=forms.TextInput(attrs={'class':'form-control',
+                                                          'placeholder':'Country'}),
                             required=True)
 
     passport = forms.ImageField(required=True)
