@@ -78,7 +78,7 @@ def summary(request):
 
     terms = Term.objects.all()
 
-    return render(request, 'summary.html', {
+    return render(request, 'hostel/summary.html', {
         'guest': guest,
         'answers': answers,
         'terms': terms

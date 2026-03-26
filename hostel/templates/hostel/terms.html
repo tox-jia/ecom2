@@ -2,30 +2,63 @@
 {% block content %}
 {% if messages %}
   {% for message in messages %}
-    <div class="alert alert-danger">
-      {{ message }}
+    <div class="alert alert-danger text-center" style="font-weight:bold; color:#006">
+      <h1>{{ message }} !!!</h1>
+      <br>
+      <div class="text-center">
+      Change ur answer & bear in mind
+      <br>
+      otherwise
+      <br>
+      request a Refund & LEAVE.
+      </div>
     </div>
   {% endfor %}
 {% endif %}
 
-<h5>Step {{ step }} of {{ total }}</h5>
 
-<h3>{{ term.question }}</h3>
-
-<form method="POST">
-  {% csrf_token %}
-
-  <div class="form-check">
-    <input type="radio" name="answer" value="no" required>
-    <label>No</label>
+<div class="container">
+  <div class="row g-3 mt-3">
+    <div class="col-1"></div>
+    <div class="col-10 mb-3 text-center">
+      <h5 style="color:#999">Step {{ step }} of {{ total }}</h5>
+    </div>
+    <div class="col-1"></div>
   </div>
-
-  <div class="form-check">
-    <input type="radio" name="answer" value="yes">
-    <label>Yes</label>
+  <div class="row g-3">
+    <div class="col-1"></div>
+    <div class="col-10 mb-3 text-start">
+      <h1>{{ term.question }}</h1>
+    </div>
+    <div class="col-1"></div>
   </div>
+  <div class="row g-3 justify-content-center">
+  <div class="col-10">
+    <form method="POST">
+      {% csrf_token %}
 
-  <br>
-  <button type="submit" class="btn btn-primary">Next</button>
-</form>
+      <div class="row">
+        <div class="col-6 text-center">
+          <button type="submit"
+                  name="answer"
+                  value="yes"
+                  class="btn btn-outline-success w-100">
+            Yes
+          </button>
+        </div>
+
+        <div class="col-6 text-center">
+          <button type="submit"
+                  name="answer"
+                  value="no"
+                  class="btn btn-outline-danger w-100">
+            No
+          </button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</div>
+</div>
 {% endblock %}

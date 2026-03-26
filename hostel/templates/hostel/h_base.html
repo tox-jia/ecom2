@@ -19,21 +19,7 @@
     <body>
         <div class="page-wrapper">
         {% include 'hostel/h_navbar.html' %}
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-warning alert-dismissible fade show" id="alert-bar" role="alert">
-                    <strong>{{ message }}</strong>
-<!--                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>-->
-                </div>
-                <script>
-                    $(document).ready(function () {
-                        setTimeout(function () {
-                            $('#alert-bar').fadeOut('slow');  // fade out the alert
-                        }, 2000); // 1000 milliseconds = 1 seconds
-                    });
-                </script>
-            {% endfor %}
-        {% endif %}
+
         {% include 'hostel/h_header.html' %}
 
         {% block content %}
