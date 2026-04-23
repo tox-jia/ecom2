@@ -90,10 +90,10 @@
     <!-- -------------------- -->
     <div class="row g-3">
     {% for term in terms %}
-        <div class="col-10" style="font-size:12px">
+        <div class="col-11" style="font-size:12px">
             {{ term|get_question:lang }}
         </div>
-        <div class="col-2">
+        <div class="col-1">
             {{ answers|get_item:term.id|stringformat:"s" }}
         </div>
     {% endfor %}
