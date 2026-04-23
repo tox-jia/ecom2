@@ -35,8 +35,9 @@ class CheckinForm(forms.ModelForm):
                             required=True)
 
     passport = forms.ImageField(required=True)
+    selfie = forms.ImageField(required=True)
 
 
     class Meta:
         model = Guest
-        fields = ('givenname', 'surname', 'platform', 'country', 'passport')
+        fields = ('givenname', 'surname', 'platform', 'country', 'selfie', 'passport')

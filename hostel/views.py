@@ -4,7 +4,34 @@ from .models import Guest, Term
 from .forms import CheckinForm
 
 
+# --------------------
+# LANGUAGE PAGE
+# --------------------
+def language(request):
+    # Optional: reset session if user wants to restart
+    if request.GET.get('reset'):
+        request.session.flush()
+
+    return render(request, 'hostel/language.html')
+
+
+# --------------------
+# CHECK-IN
+# --------------------
 def checkin(request):
+    # 🔒 require language first
+    lang = request.GET.get('lang')
+
+    # ✅ only set once (LOCK)
+    if lang:
+        request.session['lang'] = lang
+
+    # 🚫 no language → go back
+    if 'lang' not in request.session:
+        return redirect('language')
+
+    lang = request.session.get('lang')
+
     if request.method == "POST":
         form = CheckinForm(request.POST, request.FILES)
         if form.is_valid():
@@ -12,41 +39,53 @@ def checkin(request):
 
             # save session
             request.session['guest_id'] = guest.id
-            request.session['answers'] = {}  # reset answers
+            request.session['answers'] = {}
 
             return redirect('terms', step=1)
     else:
         form = CheckinForm()
 
-    return render(request, 'hostel/checkin.html', {'form': form})
+    return render(request, 'hostel/checkin.html', {
+        'form': form,
+        'lang': lang
+    })
 
 
+# --------------------
+# TERMS (STEP FLOW)
+# --------------------
 def terms(request, step):
-    # 🔒 prevent skipping
+    # 🔒 must have language
+    if 'lang' not in request.session:
+        return redirect('language')
+
+    # 🔒 must have started check-in
     guest_id = request.session.get('guest_id')
     if not guest_id:
         return redirect('checkin')
 
-    terms_list = list(Term.objects.all())
+    terms_list = list(Term.objects.all().order_by('id'))
+    total = len(terms_list)
 
-    # 🛑 prevent crash
+    # 🛑 prevent overflow
     if step > len(terms_list):
         return redirect('summary')
 
     term = terms_list[step - 1]
+    lang = request.session.get('lang')
 
     if request.method == "POST":
         answer = request.POST.get('answer')
 
-        # ❌ wrong answer → block
+        # ❌ wrong answer
+        lang = request.session.get('lang')
+
         if answer != term.correct_answer:
-            messages.error(
-                request,
-                term.warning_message or "Please select the correct answer."
-            )
+            msg = term.get_warning(lang) or "Invalid answer"
+            messages.error(request, msg)
             return redirect('terms', step=step)
 
-        # ✅ save correct answer
+        # ✅ save answer
         answers = request.session.get('answers', {})
         answers[str(term.id)] = answer
         request.session['answers'] = answers
@@ -57,14 +96,27 @@ def terms(request, step):
         else:
             return redirect('summary')
 
-    return render(request, 'hostel/terms.html', {
-        'term': term,
-        'step': step,
-        'total': len(terms_list)
+    question = term.get_question(lang)
+
+    return render(request, "hostel/terms.html", {
+        "term": term,
+        "question": question,
+        "step": step,
+        "total": total,
+        "lang": lang,
     })
 
 
+
+
+# --------------------
+# SUMMARY
+# --------------------
 def summary(request):
+    # 🔒 must have language
+    if 'lang' not in request.session:
+        return redirect('language')
+
     guest_id = request.session.get('guest_id')
     if not guest_id:
         return redirect('checkin')
@@ -76,15 +128,20 @@ def summary(request):
     guest.terms_answers = answers
     guest.save()
 
-    terms = Term.objects.all()
+    terms = Term.objects.all().order_by('id')
+    lang = request.session.get('lang')
 
     return render(request, 'hostel/summary.html', {
         'guest': guest,
         'answers': answers,
-        'terms': terms
+        'terms': terms,
+        'lang': lang
     })
 
 
+# --------------------
+# VIEW GUEST (ADMIN / VIEW)
+# --------------------
 def viewGuest(request, pk):
     guest = get_object_or_404(Guest, pk=pk)
     return render(request, 'hostel/view_guest.html', {'guest': guest})

@@ -6,25 +6,45 @@
     <div class="row g-3">
         <!-- Given Name -->
         <div class="col-6 mb-3">
-            {{ form.givenname.label_tag }}
+            <label>
+            {% if lang == 'zh' %}名
+            {% elif lang == 'th' %}ชื่อ
+            {% else %}Given Name
+            {% endif %}
+            </label>
             {{ form.givenname }}
         </div>
 
         <!-- Surname -->
         <div class="col-6 mb-3">
-            {{ form.surname.label_tag }}
+            <label>
+            {% if lang == 'zh' %}姓
+            {% elif lang == 'th' %}ชื่อ
+            {% else %}Surname
+            {% endif %}
+            </label>
             {{ form.surname }}
         </div>
 
         <!-- Country -->
         <div class="col-6 mb-3">
-            {{ form.country.label_tag }}
+            <label>
+            {% if lang == 'zh' %}国家
+            {% elif lang == 'th' %}บ้านเมือง
+            {% else %}Country
+            {% endif %}
+            </label>
             {{ form.country }}
         </div>
 
         <!-- Platform (CUSTOM RADIO UI) -->
-        <div class="col-12 mb-3">
-            <label class="form-label">Platform</label>
+        <div class="col-12 mb-2">
+            <label class="form-label">
+            {% if lang == 'zh' %}预订平台
+            {% elif lang == 'th' %}แพลตฟอร์มการจอง
+            {% else %}Reservation Platform
+            {% endif %}
+            </label>
             <div class="d-flex gap-4">
             {% for radio in form.platform %}
               <div class="form-check">
@@ -38,31 +58,94 @@
         </div>
 
         <!-- passport -->
-        <div class="col-12 mb-3">
-            <label class="form-label">Passport:</label>
-            <span id="fileName" class="ms-2 text-muted">No file chosen</span>
-
+        <div class="col-6 mb-3 p-0 m-0 text-center">
             <!-- Hidden real input -->
-            <input type="file" name="passport" id="passportInput" class="d-none">
+            <input type="file" name="passport" id="passportInput" class="d-none" accept="image/*">
             <br>
 
             <!-- Custom button -->
             <label for="passportInput" class="btn btn-secondary">
-            Upload Photo
+
+            {% if lang == 'zh' %}上传护照
+            {% elif lang == 'th' %}อัปโหลดหนังสือเดินทาง
+            {% else %}Upload Passport
+            {% endif %}
             </label>
+            <br>
+            <span id="passportPic" class="ms-2 text-muted">No file chosen</span>
+            <!-- File name display -->
+
+        </div>
+
+        <!-- selfie -->
+        <div class="col-6 mb-3 p-0 m-0 text-center">
+            <!-- Hidden real input -->
+            <input type="file" name="selfie" id="selfieInput" class="d-none" accept="image/*">
+            <br>
+
+            <!-- Custom button -->
+            <label for="selfieInput" class="btn btn-secondary">
+
+            {% if lang == 'zh' %}上传自拍
+            {% elif lang == 'th' %}อัปโหลดรูปเซลฟี่
+            {% else %}Upload Selfie
+            {% endif %}
+            </label>
+            <br>
+            <span id="selfiePic" class="ms-2 text-muted">No file chosen</span>
 
             <!-- File name display -->
 
         </div>
+        <div class="col-12 m-0 p-0 text-center mt-4">
+            <button type="submit" class="btn btn-primary" style="width:200px">OK</button>
+        </div>
     </div>
     <br/>
-    <button type="submit" class="btn btn-primary">Submit</button>
+
     </form>
 </div>
 <script>
 document.getElementById('passportInput').addEventListener('change', function() {
-    const fileName = this.files[0]?.name || "No file chosen";
-    document.getElementById('fileName').textContent = fileName;
+    const passportPic = this.files[0]?.name || "No file chosen";
+    document.getElementById('passportPic').textContent = passportPic;
+});
+
+document.getElementById('selfieInput').addEventListener('change', function() {
+    const selfiePic = this.files[0]?.name || "No file chosen";
+    document.getElementById('selfiePic').textContent = selfiePic;
 });
 </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const lang = "{{ lang }}";
+    const countryField = document.querySelector('[name="country"]');
+
+    if (!countryField) return;
+
+    if (lang === "zh" || lang === "th") {
+        let value = "";
+
+        if (lang === "zh") value = "China";
+        if (lang === "th") value = "Thailand";
+
+        // Set value
+        countryField.value = value;
+
+        // Disable field (user can't edit)
+        countryField.disabled = true;
+
+        // Create hidden input so value still submits
+        const hidden = document.createElement("input");
+        hidden.type = "hidden";
+        hidden.name = "country";
+        hidden.value = value;
+
+        countryField.closest("form").appendChild(hidden);
+    }
+});
+</script>
+
+
 {% endblock %}

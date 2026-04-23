@@ -1,63 +1,121 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta name="description" content="" />
-        <meta name="author" content="" />
-        <title>Shop Homepage - Start Bootstrap Template</title>
-        <!-- Favicon-->
-        <link rel="icon" type="image/x-icon" href="{% static 'assets/favicon.ico' %}" />
-        <!-- Bootstrap icons-->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
-        <!-- Core theme CSS (includes Bootstrap)-->
-        <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
-        <link href="{% static 'css/styles_customized.css' %}" rel="stylesheet" />
-        <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-    </head>
-    <body>
-        <div class="page-wrapper">
-
-        {% block content %}
-        {% endblock %}
-        </div>
-
-
-
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>Shop Homepage - Start Bootstrap Template</title>
+    <!-- Favicon-->
+    <link rel="icon" type="image/x-icon" href="{% static 'assets/favicon.ico' %}" />
+    <!-- Bootstrap icons-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/styles_customized.css' %}" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+</head>
+<body>
+<!-- -------------------- -->
+<!-- Alter -->
+<!-- -------------------- -->
+<div class="alert alert-warning alert-dismissible fade show mb-0" id="alert-bar" role="alert">
+    <strong>Click to Contact Us</strong>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
 {% load custom_tags %}
 <div class="container">
-  <div class="row g-3 align-items-center">
-    <div class="col-6"><h1>{{ guest.givenname }} {{ guest.surname }}</h1></div>
-    <div class="col-3">{{ guest.country }}</div>
-    <div class="col-3">{{ guest.platform }}.com</div>
-  </div>
-  <hr>
-  <div class="row g-3">
+    <!-- -------------------- -->
+    <!-- Contact Us 3 methods -->
+    <!-- -------------------- -->
+    <div class="row">
+        <div class="col-4 mt-3 mb-4 text-center">
+            <a href="https://wa.me/66929371677?text=
+            My%20fullname%20is%20{{ guest.givenname }}%20{{ guest.surname }},%20{{ guest.id }},%20plz%20give%20me%20the%20passcode."
+               target="_blank" class="btn btn-success">
+            WhatsApp
+            </a>
+        </div>
+
+        <div class="col-4 mt-3 mb-4 text-center">
+            <a href="https://line.me/R/ti/p/toxjia?text=
+            My%20fullname%20is%20{{ guest.givenname }}%20{{ guest.surname }},%20{{ guest.id }},%20plz%20give%20me%20the%20passcode."
+               target="_blank" class="btn btn-success">
+            LINE
+            </a>
+        </div>
+        <!-- WECHAT -->
+        <div class="col-4 mt-3 mb-4 text-center">
+            <button type="button"
+            class="btn btn-success"
+            data-bs-toggle="modal"
+            data-bs-target="#wechatModal">
+            微信
+        </button>
+        </div>
+
+        <div class="modal fade" id="wechatModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">ADD</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <br>
+                        <h2>pandaville2024</h2>
+                        <br>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
+    </div>
+
+    <!-- -------------------- -->
+    <!-- Guest Info -->
+    <!-- -------------------- -->
+    <div class="row g-3 align-items-center">
+        <div class="col-12"><h1>{{ guest.givenname }} {{ guest.surname }}</h1></div>
+        <div class="col-6">{{ guest.country }}</div>
+        <div class="col-6">{{ guest.platform }}.com</div>
+    </div>
+    <hr>
+
+    <!-- -------------------- -->
+    <!-- Terms -->
+    <!-- -------------------- -->
+    <div class="row g-3">
     {% for term in terms %}
-    <div class="col-3">
-    {{ term.question }} <br>
-    << {{ answers|get_item:term.id|stringformat:"s" }} >>
-    </div>
+        <div class="col-10" style="font-size:12px">
+            {{ term|get_question:lang }}
+        </div>
+        <div class="col-2">
+            {{ answers|get_item:term.id|stringformat:"s" }}
+        </div>
     {% endfor %}
-  </div>
-  <hr>
-  <div class="row g-3">
-    <div class="col-12">
-      <img src="{{ guest.passport.url }}" width="100%">
     </div>
-  </div>
+    <hr>
+    <div class="row g-3">
+        <div class="col-12">
+          <img src="{{ guest.passport.url }}" width="100%">
+        </div>
+        <hr>
+        <div class="col-12">
+            <img src="{{ guest.selfie.url }}" width="100%">
+        </div>
+    </div>
 </div>
+<br><br>
 
 
-        <!-- Footer-->
-        <footer class="py-0 bg-dark">
-            <div class="footer"><p class="m-0 text-center text-white">Copyright &copy; Panda Lodge Home Stay 2026</p></div>
-        </footer>
-        <!-- Bootstrap core JS-->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-        <!-- Core theme JS-->
+<!-- Bootstrap core JS-->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Core theme JS-->
 
-        <script src="{% static 'js/scripts.js' %}"></script>
-    </body>
+<script src="{% static 'js/scripts.js' %}"></script>
+</body>
 </html>

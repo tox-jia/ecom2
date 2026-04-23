@@ -1,0 +1,30 @@
+{% extends 'hostel/h_base.html' %}
+{% block content %}
+<div class="container">
+<form method="POST" enctype="multipart/form-data" action="{% url 'checkin' %}">{% csrf_token %}
+
+<!-- -------------------- -->
+<!-- 3 languages -->
+<!-- -------------------- -->
+<div class="row">
+  <div class="col-4 mt-3 mb-4 text-center">
+    <a href="{% url 'checkin' %}?lang=en" class="btn btn-success">
+      ENGLISH
+    </a>
+  </div>
+
+  <div class="col-4 mt-3 mb-4 text-center">
+    <a href="{% url 'checkin' %}?lang=zh" class="btn btn-success">
+      中国护照
+    </a>
+  </div>
+
+  <div class="col-4 mt-3 mb-4 text-center">
+    <a href="{% url 'checkin' %}?lang=th" class="btn btn-success">
+        หนังสือเดินทางไทย
+    </a>
+  </div>
+</div>
+</form>
+</div>
+{% endblock %}
