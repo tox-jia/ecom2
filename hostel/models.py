@@ -64,3 +64,14 @@ class Term(models.Model):
 
     def __str__(self):
         return self.question_en
+
+# Room
+class RoomState(models.Model):
+    name = models.CharField(max_length=30, blank=False)
+    out = models.BooleanField(default=False)
+    key = models.BooleanField(default=False)
+    is_clean = models.BooleanField(default=False)
+
+    # for the admin section
+    def __str__(self):
+        return self.name

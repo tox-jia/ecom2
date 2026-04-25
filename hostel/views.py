@@ -1,7 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from .models import Guest, Term
+from .models import Guest, Term, RoomState
 from .forms import CheckinForm
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 
 # --------------------
@@ -142,6 +146,106 @@ def summary(request):
 # --------------------
 # VIEW GUEST (ADMIN / VIEW)
 # --------------------
-def viewGuest(request, pk):
-    guest = get_object_or_404(Guest, pk=pk)
-    return render(request, 'hostel/view_guest.html', {'guest': guest})
+def gList(request):
+    if not request.session.get('access_granted'):
+        return redirect(f"/hostel/access/?next=/hostel/glist/")
+
+    guests = Guest.objects.all().order_by('-id')
+    return render(request, 'hostel/glist.html', {'guest': guests})
+
+
+
+# --------------------
+# CLEAN
+# --------------------
+def clean(request):
+    if not request.session.get('access_granted'):
+        return redirect(f"/hostel/access/?next=/hostel/clean/")
+
+    rooms = RoomState.objects.all().order_by('id')
+
+    rooms1 = rooms[:8]        # first 8
+    rooms2 = rooms[8:20]      # 9–20 (index 8 to 19)
+    rooms3 = rooms[20:]       # rest
+
+    return render(request, 'hostel/clean.html', {
+        'rooms1': rooms1,
+        'rooms2': rooms2,
+        'rooms3': rooms3,
+    })
+
+
+
+def update_room(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+
+        room_id = data.get('id')
+        field = data.get('field')
+
+        room = RoomState.objects.get(id=room_id)
+
+        if field == 'out':
+            room.out = not room.out
+            if not room.out:
+                room.key = False
+                room.is_clean = False
+
+        elif field == 'key':
+            if room.out:
+                room.key = not room.key
+
+        elif field == 'clean':
+            if room.out:
+                room.is_clean = not room.is_clean
+
+        room.save()
+
+        return JsonResponse({
+            'out': room.out,
+            'key': room.key,
+            'is_clean': room.is_clean
+        })
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+
+def reset_rooms(request):
+    if request.method == "POST":
+        RoomState.objects.update(
+            out=False,
+            key=False,
+            is_clean=False
+        )
+        return JsonResponse({"status": "ok"})
+
+    return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+
+
+
+# --------------------
+# PASSWORD
+# --------------------
+
+ACCESS_PASSWORD = "122812"  # ← change this to your fixed password
+
+
+def access_gate(request):
+    next_url = request.GET.get('next', '/')
+
+    if request.method == "POST":
+        password = request.POST.get("password")
+
+        if password == ACCESS_PASSWORD:
+            request.session['access_granted'] = True
+            return redirect(next_url)
+        else:
+            return render(request, "hostel/access.html", {
+                "error": "Wrong password",
+                "next": next_url
+            })
+
+    return render(request, "hostel/access.html", {"next": next_url})

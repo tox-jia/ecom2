@@ -7,5 +7,12 @@ urlpatterns = [
 
     path('terms/<int:step>/', views.terms, name='terms'),
     path('summary/', views.summary, name='summary'),
-    path('<int:pk>/', views.viewGuest, name='view_guest'),
+    path('glist/', views.gList, name='glist'),
+    path('update-room/', views.update_room, name='update_room'),
+    path('clean/', views.clean, name='clean'),
+    path('reset-rooms/', views.reset_rooms, name='reset_rooms'),
+
+
+    path('access/', views.access_gate, name='access'),
+    path('clean/', views.clean, name='clean'),
 ]

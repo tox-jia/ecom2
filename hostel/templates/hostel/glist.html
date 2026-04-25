@@ -1,0 +1,26 @@
+{% extends 'hostel/h_base.html' %}
+{% block content %}
+<div class="container">
+    <hr>
+    {% for g in guest %}
+        <div class="row">
+            <div class="col-3">{{ g.surname }}</div>
+            <div class="col-3">{{ g.givenname }}</div>
+            <div class="col-3">{{ g.country }}</div>
+            <div class="col-3 mb-2">{{ g.platform }}.com</div>
+            <div class="col-6 mb-3">
+              <img src="{{ g.passport.url }}" width="100%">
+            </div>
+            <div class="col-6">
+              <img src="{{ g.selfie.url }}" width="100%">
+            </div>
+            <hr>
+        </div>
+    {% empty %}
+        <p>No guests found.</p>
+    {% endfor %}
+</div>
+
+
+<br/><br/>
+{% endblock %}

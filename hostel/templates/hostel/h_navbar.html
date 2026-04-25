@@ -1,20 +1,29 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container px-4 px-lg-5">
-        <a class="navbar-brand" href="{% url 'language' %}"><h2 style="font-weight:bold;">Hostel</h2></a>
+    <div class="container px-4 px-lg-5 d-flex justify-content-start align-items-center">
 
-        <!-- --------------------------  -->
-        <!-- Navigation: Normal display, screen -->
-        <!-- --------------------------  -->
-        <div class="" id="">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
-                <li class="nav-item">
-                    <a class="nav-link {% if request.path == '/checkin/' %}active{% endif %}" href="{% url 'checkin' %}">
+        <a class="navbar-brand me-3" href="{% url 'language' %}">
+            <h2 style="font-weight:bold; margin:0;">Hostel</h2>
+        </a>
 
-                    </a>
-                </li>
-            </ul>
+        <ul class="navbar-nav flex-row">
+            <li class="nav-item me-3">
+                <a class="nav-link" href="{% url 'language' %}">
+                    Check-in
+                </a>
+            </li>
 
-            <!-- END  -->
-        </div>
+            <li class="nav-item me-3">
+                <a class="nav-link" href="{% url 'access' %}?next={% url 'clean' %}">
+                    Clean
+                </a>
+            </li>
+
+            <li class="nav-item me-3">
+                <a class="nav-link" href="{% url 'access' %}?next={% url 'glist' %}">
+                    List
+                </a>
+            </li>
+        </ul>
+
     </div>
 </nav>

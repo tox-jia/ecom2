@@ -1,0 +1,240 @@
+{% extends 'hostel/h_base.html' %}
+{% block content %}
+
+<script>
+function resetRooms() {
+
+
+    fetch("{% url 'reset_rooms' %}", {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": "{{ csrf_token }}"
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        location.reload();
+    });
+}
+</script>
+
+<div class="container mt-4">
+
+    <!-- Header -->
+    <div class="row fw-bold mb-2">
+        <div class="col-12 text-end mb-2">
+          <button class="btn btn-primary" onclick="resetRooms()">
+        Reset
+    </button>
+        </div>
+        <div class="col-6">Room</div>
+        <div class="col-3">Key</div>
+        <div class="col-3">Clean</div>
+    </div>
+
+    <!-- Rooms -->
+    {% for r in rooms1 %}
+    <div class="row mb-2 align-items-center">
+
+        <!-- ROOM (OUT toggle) -->
+        <div class="col-6">
+            <button
+                style="width: 80px;"
+                class="btn toggle-out {% if r.out %}btn-danger{% else %}btn-secondary {% endif %}"
+                data-id="{{ r.id }}">
+                {{ r.name }}
+            </button>
+        </div>
+
+        <!-- KEY -->
+        <div class="col-3">
+            <button
+                class="btn toggle-key
+                {% if not r.out %}
+                    btn-secondary disabled
+                {% elif r.key %}
+                    btn-success
+                {% else %}
+                    btn-outline-success
+                {% endif %}"
+                data-id="{{ r.id }}">
+                Key
+            </button>
+        </div>
+
+        <!-- CLEAN -->
+        <div class="col-3">
+            <button
+                class="btn toggle-clean
+                {% if not r.out %}
+                    btn-secondary disabled
+                {% elif r.is_clean %}
+                    btn-success
+                {% else %}
+                    btn-outline-success
+                {% endif %}"
+                data-id="{{ r.id }}">
+                Clean
+            </button>
+        </div>
+
+    </div>
+    {% empty %}
+        <p>No rooms found.</p>
+    {% endfor %}
+
+  <hr>
+  <!-- Rooms -->
+    {% for r in rooms2 %}
+    <div class="row mb-2 align-items-center">
+
+        <!-- ROOM (OUT toggle) -->
+        <div class="col-6">
+            <button
+                style="width: 80px;"
+                class="btn toggle-out {% if r.out %}btn-danger{% else %}btn-secondary {% endif %}"
+                data-id="{{ r.id }}">
+                {{ r.name }}
+            </button>
+        </div>
+
+        <!-- KEY -->
+        <div class="col-3">
+            <button
+                class="btn toggle-key
+                {% if not r.out %}
+                    btn-secondary disabled
+                {% elif r.key %}
+                    btn-success
+                {% else %}
+                    btn-outline-success
+                {% endif %}"
+                data-id="{{ r.id }}">
+                Key
+            </button>
+        </div>
+
+        <!-- CLEAN -->
+        <div class="col-3">
+            <button
+                class="btn toggle-clean
+                {% if not r.out %}
+                    btn-secondary disabled
+                {% elif r.is_clean %}
+                    btn-success
+                {% else %}
+                    btn-outline-success
+                {% endif %}"
+                data-id="{{ r.id }}">
+                Clean
+            </button>
+        </div>
+
+    </div>
+    {% empty %}
+        <p>No rooms found.</p>
+    {% endfor %}
+
+  <hr>
+
+  <!-- Rooms -->
+    {% for r in rooms3 %}
+    <div class="row mb-2 align-items-center">
+
+        <!-- ROOM (OUT toggle) -->
+        <div class="col-6">
+            <button
+                style="width: 80px;"
+                class="btn toggle-out {% if r.out %}btn-danger{% else %}btn-secondary {% endif %}"
+                data-id="{{ r.id }}">
+                {{ r.name }}
+            </button>
+        </div>
+
+        <!-- KEY -->
+        <div class="col-3">
+            <button
+                class="btn toggle-key
+                {% if not r.out %}
+                    btn-secondary disabled
+                {% elif r.key %}
+                    btn-success
+                {% else %}
+                    btn-outline-success
+                {% endif %}"
+                data-id="{{ r.id }}">
+                Key
+            </button>
+        </div>
+
+        <!-- CLEAN -->
+        <div class="col-3">
+            <button
+                class="btn toggle-clean
+                {% if not r.out %}
+                    btn-secondary disabled
+                {% elif r.is_clean %}
+                    btn-success
+                {% else %}
+                    btn-outline-success
+                {% endif %}"
+                data-id="{{ r.id }}">
+                Clean
+            </button>
+        </div>
+
+    </div>
+    {% empty %}
+        <p>No rooms found.</p>
+    {% endfor %}
+
+</div>
+
+
+<script>
+// ✅ AJAX function
+function sendUpdate(id, field) {
+    fetch("{% url 'update_room' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: JSON.stringify({
+            id: id,
+            field: field
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        location.reload();  // simple version (works reliably)
+    });
+}
+
+// OUT button
+document.querySelectorAll(".toggle-out").forEach(btn => {
+    btn.addEventListener("click", function() {
+        sendUpdate(this.dataset.id, "out");
+    });
+});
+
+// KEY button
+document.querySelectorAll(".toggle-key").forEach(btn => {
+    btn.addEventListener("click", function() {
+        if (!this.classList.contains("disabled")) {
+            sendUpdate(this.dataset.id, "key");
+        }
+    });
+});
+
+// CLEAN button
+document.querySelectorAll(".toggle-clean").forEach(btn => {
+    btn.addEventListener("click", function() {
+        if (!this.classList.contains("disabled")) {
+            sendUpdate(this.dataset.id, "clean");
+        }
+    });
+});
+</script>
+
+{% endblock %}

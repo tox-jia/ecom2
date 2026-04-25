@@ -4,3 +4,4 @@ from .models import *
 
 admin.site.register(Guest)
 admin.site.register(Term)
+admin.site.register(RoomState)
