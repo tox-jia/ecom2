@@ -40,7 +40,7 @@
 
         <div class="col-4 mt-3 mb-4 text-center">
             <a href="https://line.me/R/ti/p/toxjia?text=
-            My%20fullname%20is%20{{ guest.givenname }}%20{{ guest.surname }},%20{{ guest.id }},%20plz%20give%20me%20the%20passcode."
+            My%20fullname%20is%20{{ guest.givenname }}%20{{ guest.surname }},id: %20{{ guest.id }},%20plz%20give%20me%20the%20passcode."
                target="_blank" class="btn btn-success">
             LINE
             </a>
@@ -79,7 +79,7 @@
     <!-- Guest Info -->
     <!-- -------------------- -->
     <div class="row g-3 align-items-center">
-        <div class="col-12"><h1>{{ guest.givenname }} {{ guest.surname }}</h1></div>
+        <div class="col-12"><h1>{{ guest.id }}: {{ guest.givenname }} {{ guest.surname }}</h1></div>
         <div class="col-6">{{ guest.country }}</div>
         <div class="col-6">{{ guest.platform }}.com</div>
     </div>
