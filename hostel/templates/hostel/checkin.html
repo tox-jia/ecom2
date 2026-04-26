@@ -1,6 +1,25 @@
 {% extends 'hostel/h_base.html' %}
 {% block content %}
 <div class="container">
+
+    <div id="loadingOverlay" style="
+        display:none;
+        position:fixed;
+        top:0;
+        left:0;
+        width:100%;
+        height:100%;
+        background:rgba(0,0,0,0.6);
+        z-index:9999;
+        color:white;
+        justify-content:center;
+        align-items:center;
+        flex-direction:column;
+    ">
+        <div class="spinner-border text-light mb-3" role="status"></div>
+        <div id="loadingText">Uploading... Please wait</div>
+    </div>
+
     <form method="POST" enctype="multipart/form-data" action="{% url 'checkin' %}">{% csrf_token %}
     <br/>
     <div class="row g-3">
@@ -98,13 +117,39 @@
 
         </div>
         <div class="col-12 m-0 p-0 text-center mt-4">
-            <button type="submit" class="btn btn-primary" style="width:200px">OK</button>
+            <button id="submitBtn" type="submit" class="btn btn-primary" style="width:200px">
+                OK
+            </button>
         </div>
     </div>
     <br/>
 
     </form>
 </div>
+<script>
+document.querySelector("form").addEventListener("submit", function() {
+    const overlay = document.getElementById("loadingOverlay");
+    const btn = document.getElementById("submitBtn");
+
+    // Show overlay
+    overlay.style.display = "flex";
+
+    // Disable button (prevent double submit)
+    btn.disabled = true;
+
+    // Optional: change text based on language
+    const lang = "{{ lang }}";
+    const text = document.getElementById("loadingText");
+
+    if (lang === "zh") text.textContent = "正在上传，请稍等...";
+    else if (lang === "th") text.textContent = "กำลังอัปโหลด กรุณารอสักครู่...";
+    else text.textContent = "Uploading... Please wait";
+});
+</script>
+
+
+
+
 <script>
 document.getElementById('passportInput').addEventListener('change', function() {
     const passportPic = this.files[0]?.name || "No file chosen";
