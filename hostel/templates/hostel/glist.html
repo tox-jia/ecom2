@@ -12,7 +12,12 @@
             <div class="col-5 mb-3">
                 {% csrf_token %}
                 <select class="form-select form-select-sm room-select"
-                        data-guest-id="{{ g.id }}">
+                    data-guest-id="{{ g.id }}"
+                    data-name="{{ g.givenname }}"
+                    data-start="{{ g.start_day }}"
+                    data-end="{{ g.end_day }}"
+                    data-keycard="{{ g.room }}"
+                >
                     <option value="">-- Select Room --</option>
                     {% for room in rooms %}
                         <option value="{{ room.id }}"
@@ -43,8 +48,15 @@
 document.querySelectorAll('.room-select').forEach(select => {
     select.addEventListener('change', function () {
         const guestId = this.dataset.guestId;
-        const roomId = this.value;
+        const guestName = this.dataset.name;
+        const start = this.dataset.start;
+        const end = this.dataset.end;
+        const room = this.dataset.room;
 
+        const roomId = this.value;
+        const roomName = this.options[this.selectedIndex].text;
+
+        // --- AJAX (your existing logic) ---
         fetch(`/hostel/assign-room/${guestId}/`, {
             method: 'POST',
             headers: {
@@ -56,7 +68,40 @@ document.querySelectorAll('.room-select').forEach(select => {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                console.log("Room updated:", data.room_name);
+
+                // --- Determine box + code based on room name ---
+                let box = 4;
+                let code = "0630";
+
+                if (roomName.startsWith("2-")) {
+                    box = 2;
+                    code = "0714";
+                } else if (roomName.startsWith("3-")) {
+                    box = 3;
+                    code = "0908";
+                }
+
+                // --- Build message ---
+                const message = `Plz watch the video to get key card;
+----------------------
+Room & Box ${box}lock
+code: ${code}
+----------------------
+Key Card: ${roomName};
+----------------------
+Wifi: Panda_2.4G / 5G
+Pass: Panda2024
+                `;
+
+                // --- Copy to clipboard ---
+                navigator.clipboard.writeText(message)
+                    .then(() => {
+                        alert("Message copied ✅\n\n" + message);
+                    })
+                    .catch(() => {
+                        alert("Copy failed ❌");
+                    });
+
             } else {
                 alert("Error updating room");
             }
