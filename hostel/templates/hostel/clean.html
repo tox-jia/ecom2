@@ -38,7 +38,7 @@ function resetRooms() {
         <!-- ROOM (OUT toggle) -->
         <div class="col-2 mb-2">
             <button
-                style="width: 60px;"
+                style="width: 55px;"
                 class="btn toggle-out {% if r.out %}btn-danger{% else %}btn-secondary {% endif %}"
                 data-id="{{ r.id }}">
                 {{ r.name }}
@@ -46,7 +46,7 @@ function resetRooms() {
         </div>
 
         <!-- KEY -->
-        <div class="col-2 text-center">
+        <div class="col-2 text-center mb-2">
             <button
                 class="btn toggle-key
                 {% if not r.out %}
@@ -62,7 +62,7 @@ function resetRooms() {
         </div>
 
         <!-- CLEAN -->
-        <div class="col-2 text-center border-end">
+        <div class="col-2 text-center border-end mb-2">
             <button
                 class="btn toggle-clean
                 {% if not r.out %}
@@ -99,7 +99,7 @@ function resetRooms() {
         </div>
 
         <!-- KEY -->
-        <div class="col-2 text-center">
+        <div class="col-2 text-center mb-2">
             <button
                 class="btn toggle-key
                 {% if not r.out %}
@@ -115,7 +115,7 @@ function resetRooms() {
         </div>
 
         <!-- CLEAN -->
-        <div class="col-2 text-center border-end">
+        <div class="col-2 text-center border-end mb-2">
             <button
                 class="btn toggle-clean
                 {% if not r.out %}
@@ -153,7 +153,7 @@ function resetRooms() {
         </div>
 
         <!-- KEY -->
-        <div class="col-2 text-center">
+        <div class="col-2 text-center mb-2">
             <button
                 class="btn toggle-key
                 {% if not r.out %}
@@ -169,7 +169,7 @@ function resetRooms() {
         </div>
 
         <!-- CLEAN -->
-        <div class="col-2 text-center border-end">
+        <div class="col-2 text-center border-end mb-2">
             <button
                 class="btn toggle-clean
                 {% if not r.out %}
