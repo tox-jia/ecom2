@@ -151,7 +151,7 @@ def gList(request):
         return redirect(f"/hostel/access/?next=/hostel/glist/")
 
     guests = Guest.objects.all().order_by('-id')
-    rooms = RoomState.objects.all()
+    rooms = RoomState.objects.all().order_by('-id')
     return render(request, 'hostel/glist.html', {'guest': guests, 'rooms': rooms})
 
 
