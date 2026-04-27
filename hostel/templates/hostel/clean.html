@@ -22,24 +22,23 @@ function resetRooms() {
 
     <!-- Header -->
     <div class="row fw-bold mb-2">
-        <div class="col-12 text-end mb-2">
-          <button class="btn btn-primary" onclick="resetRooms()">
-        Reset
-    </button>
-        </div>
-        <div class="col-6">Room</div>
-        <div class="col-3">Key</div>
-        <div class="col-3">Clean</div>
+
+        <div class="col-2 text-center">Room</div>
+        <div class="col-2 text-center">Key</div>
+        <div class="col-2 text-center border-end">Clean</div>
+        <div class="col-2 text-center">Room</div>
+        <div class="col-2 text-center">Key</div>
+        <div class="col-2 text-center border-end">Clean</div>
     </div>
 
     <!-- Rooms -->
+
+    <div class="row mb-2 align-items-center">
     {% for r in rooms1 %}
-    <div class="row mb-2 align-items-center">
-
         <!-- ROOM (OUT toggle) -->
-        <div class="col-6">
+        <div class="col-2 mb-2">
             <button
-                style="width: 80px;"
+                style="width: 60px;"
                 class="btn toggle-out {% if r.out %}btn-danger{% else %}btn-secondary {% endif %}"
                 data-id="{{ r.id }}">
                 {{ r.name }}
@@ -47,7 +46,7 @@ function resetRooms() {
         </div>
 
         <!-- KEY -->
-        <div class="col-3">
+        <div class="col-2 text-center">
             <button
                 class="btn toggle-key
                 {% if not r.out %}
@@ -63,7 +62,7 @@ function resetRooms() {
         </div>
 
         <!-- CLEAN -->
-        <div class="col-3">
+        <div class="col-2 text-center border-end">
             <button
                 class="btn toggle-clean
                 {% if not r.out %}
@@ -74,24 +73,25 @@ function resetRooms() {
                     btn-outline-success
                 {% endif %}"
                 data-id="{{ r.id }}">
-                Clean
+                OK
             </button>
         </div>
 
-    </div>
+
     {% empty %}
         <p>No rooms found.</p>
     {% endfor %}
+        </div>
 
   <hr>
   <!-- Rooms -->
+
+    <div class="row mb-2 align-items-center">
     {% for r in rooms2 %}
-    <div class="row mb-2 align-items-center">
-
         <!-- ROOM (OUT toggle) -->
-        <div class="col-6">
+        <div class="col-2 mb-2">
             <button
-                style="width: 80px;"
+                style="width: 60px;"
                 class="btn toggle-out {% if r.out %}btn-danger{% else %}btn-secondary {% endif %}"
                 data-id="{{ r.id }}">
                 {{ r.name }}
@@ -99,7 +99,7 @@ function resetRooms() {
         </div>
 
         <!-- KEY -->
-        <div class="col-3">
+        <div class="col-2 text-center">
             <button
                 class="btn toggle-key
                 {% if not r.out %}
@@ -115,7 +115,7 @@ function resetRooms() {
         </div>
 
         <!-- CLEAN -->
-        <div class="col-3">
+        <div class="col-2 text-center border-end">
             <button
                 class="btn toggle-clean
                 {% if not r.out %}
@@ -126,25 +126,26 @@ function resetRooms() {
                     btn-outline-success
                 {% endif %}"
                 data-id="{{ r.id }}">
-                Clean
+                OK
             </button>
         </div>
 
-    </div>
+
     {% empty %}
         <p>No rooms found.</p>
     {% endfor %}
+        </div>
 
   <hr>
 
   <!-- Rooms -->
-    {% for r in rooms3 %}
-    <div class="row mb-2 align-items-center">
 
+    <div class="row mb-2 align-items-center">
+    {% for r in rooms3 %}
         <!-- ROOM (OUT toggle) -->
-        <div class="col-6">
+        <div class="col-2 mb-2">
             <button
-                style="width: 80px;"
+                style="width: 60px;"
                 class="btn toggle-out {% if r.out %}btn-danger{% else %}btn-secondary {% endif %}"
                 data-id="{{ r.id }}">
                 {{ r.name }}
@@ -152,7 +153,7 @@ function resetRooms() {
         </div>
 
         <!-- KEY -->
-        <div class="col-3">
+        <div class="col-2 text-center">
             <button
                 class="btn toggle-key
                 {% if not r.out %}
@@ -168,7 +169,7 @@ function resetRooms() {
         </div>
 
         <!-- CLEAN -->
-        <div class="col-3">
+        <div class="col-2 text-center border-end">
             <button
                 class="btn toggle-clean
                 {% if not r.out %}
@@ -179,14 +180,25 @@ function resetRooms() {
                     btn-outline-success
                 {% endif %}"
                 data-id="{{ r.id }}">
-                Clean
+                OK
             </button>
         </div>
 
-    </div>
+
     {% empty %}
         <p>No rooms found.</p>
     {% endfor %}
+
+        </div>
+
+    <hr>
+
+    <div class="col-12 text-center mb-2">
+            <button class="btn btn-primary" onclick="resetRooms()">
+                Reset
+            </button>
+        </div>
+
 
 </div>
 
