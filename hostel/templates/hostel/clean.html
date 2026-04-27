@@ -1,5 +1,11 @@
 {% extends 'hostel/h_base.html' %}
 {% block content %}
+<style>
+.btn{
+    font-size:12px;
+    width: 56px;
+}
+</style>
 
 <script>
 function resetRooms() {
@@ -18,9 +24,9 @@ function resetRooms() {
 }
 </script>
 
-<div class="container mt-4">
+<div class="container mt-2">
 
-    <!-- Header -->
+    <!-- Header
     <div class="row fw-bold mb-2">
 
         <div class="col-2 text-center">Room</div>
@@ -29,16 +35,15 @@ function resetRooms() {
         <div class="col-2 text-center">Room</div>
         <div class="col-2 text-center">Key</div>
         <div class="col-2 text-center border-end">Clean</div>
-    </div>
+    </div> -->
 
     <!-- Rooms -->
 
-    <div class="row mb-2 align-items-center">
+    <div class="row">
     {% for r in rooms1 %}
         <!-- ROOM (OUT toggle) -->
-        <div class="col-2 mb-2">
+        <div class="col-2 m-0 p-0 mb-2 text-start ps-2">
             <button
-                style="width: 55px;"
                 class="btn toggle-out {% if r.out %}btn-danger{% else %}btn-secondary {% endif %}"
                 data-id="{{ r.id }}">
                 {{ r.name }}
@@ -46,7 +51,7 @@ function resetRooms() {
         </div>
 
         <!-- KEY -->
-        <div class="col-2 text-center mb-2">
+        <div class="col-2 m-0 p-0 text-start ps-2 mb-2">
             <button
                 class="btn toggle-key
                 {% if not r.out %}
@@ -62,7 +67,7 @@ function resetRooms() {
         </div>
 
         <!-- CLEAN -->
-        <div class="col-2 text-center border-end mb-2">
+        <div class="col-2 m-0 p-0 ps-1 text-start border-end mb-2">
             <button
                 class="btn toggle-clean
                 {% if not r.out %}
@@ -86,12 +91,12 @@ function resetRooms() {
   <hr>
   <!-- Rooms -->
 
-    <div class="row mb-2 align-items-center">
+    <div class="row">
     {% for r in rooms2 %}
         <!-- ROOM (OUT toggle) -->
-        <div class="col-2 mb-2">
+        <div class="col-2 m-0 p-0 mb-2 text-start ps-2">
             <button
-                style="width: 60px;"
+
                 class="btn toggle-out {% if r.out %}btn-danger{% else %}btn-secondary {% endif %}"
                 data-id="{{ r.id }}">
                 {{ r.name }}
@@ -99,7 +104,7 @@ function resetRooms() {
         </div>
 
         <!-- KEY -->
-        <div class="col-2 text-center mb-2">
+        <div class="col-2 m-0 p-0 text-start ps-2 mb-2">
             <button
                 class="btn toggle-key
                 {% if not r.out %}
@@ -115,7 +120,7 @@ function resetRooms() {
         </div>
 
         <!-- CLEAN -->
-        <div class="col-2 text-center border-end mb-2">
+        <div class="col-2 m-0 p-0 ps-1 text-start border-end mb-2">
             <button
                 class="btn toggle-clean
                 {% if not r.out %}
@@ -140,12 +145,11 @@ function resetRooms() {
 
   <!-- Rooms -->
 
-    <div class="row mb-2 align-items-center">
+    <div class="row">
     {% for r in rooms3 %}
         <!-- ROOM (OUT toggle) -->
-        <div class="col-2 mb-2">
+        <div class="col-2 m-0 p-0 mb-2 text-start ps-2">
             <button
-                style="width: 60px;"
                 class="btn toggle-out {% if r.out %}btn-danger{% else %}btn-secondary {% endif %}"
                 data-id="{{ r.id }}">
                 {{ r.name }}
@@ -153,7 +157,7 @@ function resetRooms() {
         </div>
 
         <!-- KEY -->
-        <div class="col-2 text-center mb-2">
+        <div class="col-2 m-0 p-0 text-start ps-2 mb-2">
             <button
                 class="btn toggle-key
                 {% if not r.out %}
@@ -169,7 +173,7 @@ function resetRooms() {
         </div>
 
         <!-- CLEAN -->
-        <div class="col-2 text-center border-end mb-2">
+        <div class="col-2 m-0 p-0 ps-1 text-start border-end mb-2">
             <button
                 class="btn toggle-clean
                 {% if not r.out %}
@@ -188,7 +192,6 @@ function resetRooms() {
     {% empty %}
         <p>No rooms found.</p>
     {% endfor %}
-
         </div>
 
     <hr>
