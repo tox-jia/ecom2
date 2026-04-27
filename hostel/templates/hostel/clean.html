@@ -6,6 +6,12 @@
     width: 56px;
 }
 </style>
+<style id="b8c2s1">
+.btn-prep {
+    background-color: #ffc107 !important; /* Bootstrap yellow */
+    color: black;
+}
+</style>
 
 <script>
 function resetRooms() {
@@ -44,7 +50,7 @@ function resetRooms() {
         <!-- ROOM (OUT toggle) -->
         <div class="col-2 m-0 p-0 mb-2 text-start ps-2">
             <button
-                class="btn toggle-out {% if r.out %}btn-danger{% else %}btn-secondary {% endif %}"
+                class="btn toggle-out {% if r.out %}btn-danger{% else %}btn-secondary{% endif %}"
                 data-id="{{ r.id }}">
                 {{ r.name }}
             </button>
@@ -205,11 +211,25 @@ function resetRooms() {
 
 </div>
 
-
 <script>
-// ✅ AJAX function
+// --- RESET ALL ROOMS ---
+function resetRooms() {
+    fetch("{% url 'reset_rooms' %}", {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": "{{ csrf_token }}"
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        location.reload();
+    });
+}
+
+
+// --- SEND UPDATE TO BACKEND ---
 function sendUpdate(id, field) {
-    fetch("{% url 'update_room' %}", {
+    return fetch("{% url 'update_room' %}", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -220,34 +240,102 @@ function sendUpdate(id, field) {
             field: field
         })
     })
-    .then(response => response.json())
-    .then(data => {
-        location.reload();  // simple version (works reliably)
-    });
+    .then(response => response.json());
 }
 
-// OUT button
+
+// --- ENABLE / DISABLE KEY & CLEAN ---
+function updateButtonsUI(roomId, isActive) {
+    const keyBtn = document.querySelector(`.toggle-key[data-id="${roomId}"]`);
+    const cleanBtn = document.querySelector(`.toggle-clean[data-id="${roomId}"]`);
+
+    if (!keyBtn || !cleanBtn) return;
+
+    if (isActive) {
+        // ENABLE
+        keyBtn.classList.remove("disabled", "btn-secondary");
+        keyBtn.classList.add("btn-outline-success");
+
+        cleanBtn.classList.remove("disabled", "btn-secondary");
+        cleanBtn.classList.add("btn-outline-success");
+
+    } else {
+        // DISABLE + RESET
+        keyBtn.classList.add("disabled");
+        keyBtn.classList.remove("btn-outline-success", "btn-success");
+        keyBtn.classList.add("btn-secondary");
+
+        cleanBtn.classList.add("disabled");
+        cleanBtn.classList.remove("btn-outline-success", "btn-success");
+        cleanBtn.classList.add("btn-secondary");
+    }
+}
+
+
+// --- ROOM BUTTON (3 STATES) ---
 document.querySelectorAll(".toggle-out").forEach(btn => {
+
+    // initial state from Django
+    btn.dataset.state = btn.classList.contains("btn-danger") ? "on" : "off";
+
     btn.addEventListener("click", function() {
-        sendUpdate(this.dataset.id, "out");
+        let state = this.dataset.state;
+        const roomId = this.dataset.id;
+
+        if (state === "off") {
+            // OFF → PREP (yellow only, no DB)
+            this.classList.remove("btn-secondary");
+            this.classList.add("btn-prep");
+            this.dataset.state = "prep";
+
+        } else if (state === "prep") {
+            // PREP → ON (activate)
+            this.classList.remove("btn-prep");
+            this.classList.add("btn-danger");
+            this.dataset.state = "on";
+
+            sendUpdate(roomId, "out");
+            updateButtonsUI(roomId, true);
+
+        } else if (state === "on") {
+            // ON → OFF (deactivate)
+            this.classList.remove("btn-danger");
+            this.classList.add("btn-secondary");
+            this.dataset.state = "off";
+
+            sendUpdate(roomId, "out");
+            updateButtonsUI(roomId, false);
+        }
     });
 });
 
-// KEY button
+
+// --- KEY BUTTON ---
 document.querySelectorAll(".toggle-key").forEach(btn => {
     btn.addEventListener("click", function() {
-        if (!this.classList.contains("disabled")) {
-            sendUpdate(this.dataset.id, "key");
-        }
+        if (this.classList.contains("disabled")) return;
+
+        const roomId = this.dataset.id;
+
+        sendUpdate(roomId, "key").then(() => {
+            this.classList.toggle("btn-success");
+            this.classList.toggle("btn-outline-success");
+        });
     });
 });
 
-// CLEAN button
+
+// --- CLEAN BUTTON ---
 document.querySelectorAll(".toggle-clean").forEach(btn => {
     btn.addEventListener("click", function() {
-        if (!this.classList.contains("disabled")) {
-            sendUpdate(this.dataset.id, "clean");
-        }
+        if (this.classList.contains("disabled")) return;
+
+        const roomId = this.dataset.id;
+
+        sendUpdate(roomId, "clean").then(() => {
+            this.classList.toggle("btn-success");
+            this.classList.toggle("btn-outline-success");
+        });
     });
 });
 </script>
