@@ -5,12 +5,12 @@
     {% for g in guest %}
         <div class="row">
             <div class="col-2">{{ g.id }}</div>
-            <div class="col-10">{{ g.surname }} {{ g.givenname }}</div>
+            <div class="col-10"><b>{{ g.surname }} {{ g.givenname }}</b></div>
 
             <div class="col-3">{{ g.country }}</div>
-            <div class="col-3 mb-2">{{ g.platform }}</div>
-            <div class="col-3 mb-2">{{ g.start_day }}-{{ g.end_day }}</div>
-            <div class="col-3 mb-2">
+            <div class="col-3 mb-3">{{ g.platform }}</div>
+            <div class="col-3 mb-3">{{ g.start_day }}-{{ g.end_day }}</div>
+            <div class="col-3 mb-3">
                 {% csrf_token %}
                 <select class="form-select form-select-sm room-select"
                         data-guest-id="{{ g.id }}">
