@@ -15,4 +15,5 @@ urlpatterns = [
 
     path('access/', views.access_gate, name='access'),
     path('clean/', views.clean, name='clean'),
+    path('assign-room/<int:guest_id>/', views.assign_room, name='assign_room'),
 ]

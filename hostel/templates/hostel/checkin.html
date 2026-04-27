@@ -56,6 +56,26 @@
             {{ form.country }}
         </div>
 
+        <div class="col-3 mb-3">
+            <label>
+            {% if lang == 'zh' %}入住
+            {% elif lang == 'th' %}เช็คอิน
+            {% else %}In
+            {% endif %}
+            </label>
+            {{ form.start_day }}
+        </div>
+
+        <div class="col-3 mb-3">
+            <label>
+            {% if lang == 'zh' %}退房
+            {% elif lang == 'th' %}ลองดูสิ
+            {% else %}Out
+            {% endif %}
+            </label>
+            {{ form.end_day }}
+        </div>
+
         <!-- Platform (CUSTOM RADIO UI) -->
         <div class="col-12 mb-2">
             <label class="form-label">

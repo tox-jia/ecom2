@@ -4,11 +4,25 @@
     <hr>
     {% for g in guest %}
         <div class="row">
-            <div class="col-1">{{ g.id }}</div>
-            <div class="col-3">{{ g.surname }}</div>
-            <div class="col-3">{{ g.givenname }}</div>
+            <div class="col-2">{{ g.id }}</div>
+            <div class="col-10">{{ g.surname }} {{ g.givenname }}</div>
+
             <div class="col-3">{{ g.country }}</div>
-            <div class="col-2 mb-2">{{ g.platform }}.com</div>
+            <div class="col-3 mb-2">{{ g.platform }}</div>
+            <div class="col-3 mb-2">{{ g.start_day }}-{{ g.end_day }}</div>
+            <div class="col-3 mb-2">
+                {% csrf_token %}
+                <select class="form-select form-select-sm room-select"
+                        data-guest-id="{{ g.id }}">
+                    <option value="">-- Select Room --</option>
+                    {% for room in rooms %}
+                        <option value="{{ room.id }}"
+                            {% if g.room and g.room.id == room.id %}selected{% endif %}>
+                            {{ room.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
             <div class="col-6 mb-3">
               <img src="{{ g.passport.url }}" width="100%">
             </div>
@@ -24,4 +38,31 @@
 
 
 <br/><br/>
+
+
+<script>
+document.querySelectorAll('.room-select').forEach(select => {
+    select.addEventListener('change', function () {
+        const guestId = this.dataset.guestId;
+        const roomId = this.value;
+
+        fetch(`/hostel/assign-room/${guestId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: `room_id=${roomId}`
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                console.log("Room updated:", data.room_name);
+            } else {
+                alert("Error updating room");
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

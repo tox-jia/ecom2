@@ -151,7 +151,31 @@ def gList(request):
         return redirect(f"/hostel/access/?next=/hostel/glist/")
 
     guests = Guest.objects.all().order_by('-id')
-    return render(request, 'hostel/glist.html', {'guest': guests})
+    rooms = RoomState.objects.all()
+    return render(request, 'hostel/glist.html', {'guest': guests, 'rooms': rooms})
+
+
+def assign_room(request, guest_id):
+    if request.method == "POST":
+        guest = get_object_or_404(Guest, id=guest_id)
+        room_id = request.POST.get("room_id")
+
+        if room_id:
+            room = RoomState.objects.get(id=room_id)
+            guest.room = room
+            room_name = room.name
+        else:
+            guest.room = None
+            room_name = None
+
+        guest.save()
+
+        return JsonResponse({
+            "success": True,
+            "room_name": room_name
+        })
+
+    return JsonResponse({"success": False})
 
 
 

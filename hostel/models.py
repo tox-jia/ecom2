@@ -23,6 +23,15 @@ class Guest(models.Model):
     passport = CloudinaryField('image', blank=False, null=False)
     selfie = CloudinaryField('image', blank=False, null=False)
     terms_answers = models.JSONField(default=dict, blank=True)
+    room = models.ForeignKey(
+        "RoomState",
+        on_delete=models.SET_NULL,  # keeps guest even if room is deleted
+        null=True,
+        blank=True,
+        related_name="guests"
+    )
+    start_day = models.PositiveIntegerField(null=True, blank=True)
+    end_day = models.PositiveIntegerField(null=True, blank=True)
 
     # for the admin section
     def __str__(self):

@@ -34,10 +34,24 @@ class CheckinForm(forms.ModelForm):
                                                           'placeholder':'Country'}),
                             required=True)
 
+    start_day = forms.ChoiceField(
+        label="Start Date",
+        choices=[(i, i) for i in range(1, 32)],
+        initial=15,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+    end_day = forms.ChoiceField(
+        label="Start Date",
+        choices=[(i, i) for i in range(1, 32)],
+        initial=16,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
     passport = forms.ImageField(required=True)
     selfie = forms.ImageField(required=True)
 
 
     class Meta:
         model = Guest
-        fields = ('givenname', 'surname', 'platform', 'country', 'selfie', 'passport')
+        fields = ('givenname', 'surname', 'platform', 'country', 'start_day', 'end_day', 'selfie', 'passport')
