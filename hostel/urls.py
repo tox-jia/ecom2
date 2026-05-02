@@ -14,6 +14,13 @@ urlpatterns = [
 
 
     path('access/', views.access_gate, name='access'),
-    path('clean/', views.clean, name='clean'),
     path('assign-room/<int:guest_id>/', views.assign_room, name='assign_room'),
+
+
+    path('r_order/', views.r_order, name='r_order'),
+
+    path('monthly_job/', views.monthly_job, name='monthly_job'),
+    path('save_payment/', views.save_payment, name='save_payment'),
+    path('upload_image/', views.upload_image, name='upload_image'),
+    path('mark_done/', views.mark_done, name='mark_done'),
 ]

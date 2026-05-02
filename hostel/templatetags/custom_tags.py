@@ -10,3 +10,9 @@ def get_item(dictionary, key):
 @register.filter
 def get_question(term, lang):
     return term.get_question(lang)
+
+
+
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)

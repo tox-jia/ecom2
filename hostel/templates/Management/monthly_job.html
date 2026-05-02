@@ -1,0 +1,256 @@
+{% extends 'p_base.html' %}
+{% block content %}
+{% load custom_tags %}
+{% load static %}
+{% load humanize %}
+
+<style>
+a {
+    text-decoration: none !important;
+    color: inherit !important;
+}
+a:hover {
+    text-decoration: none !important;
+    color: inherit !important;
+}
+a:focus,
+a:active {
+    outline: none !important;
+    box-shadow: none !important;
+}
+</style>
+
+<div class="container">
+
+    <!-- HEADER -->
+    <div class="row">
+        <div class="col-2 text-start pt-2 ps-3">
+            <button class="btn btn-secondary btn-prev"><<</button>
+        </div>
+
+        <div class="col-8 text-center pt-2">
+            <h1><b>{{ year }} - M{{ month }}</b></h1>
+        </div>
+
+        <div class="col-2 text-end pt-2 pe-3">
+            <button class="btn btn-secondary btn-next">>></button>
+        </div>
+    </div>
+
+    <!-- TABLE HEADER -->
+    <div class="row text-center mt-2">
+        <div class="col-5 border">Job</div>
+        <div class="col-3 border">THB</div>
+        <div class="col-2 border">Image</div>
+        <div class="col-2 border">Done</div>
+    </div>
+
+    <!-- ROWS -->
+    {% for row in joblist %}
+    {% with rec=record_map|get_item:row.id %}
+    <div class="row text-center job-row" data-job-id="{{ row.id }}">
+
+        <!-- JOB -->
+        <div class="col-5 border pt-2 text-start">
+            <h5><b>{{ row.name }}</b></h5>
+        </div>
+
+        <!-- PAYMENT -->
+        <div class="col-3 border pt-2">
+            {% if rec and rec.is_done %}
+                {% if rec.payment %}
+                    {{ rec.payment|floatformat:2|intcomma }}
+                {% else %}
+                    -
+                {% endif %}
+            {% else %}
+                <input
+                    type="number" step="0.01"
+                    class="payment-input"
+                    data-id="{{ row.id }}"
+                    style="width:90px;"
+                    value="{{ rec.payment|default_if_none:'' }}"
+                >
+            {% endif %}
+        </div>
+
+        <!-- IMAGE -->
+        <div class="col-2 border image-box pt-2" data-id="{{ row.id }}">
+            <div class="image-list">
+                {% if rec %}
+                    {% for img in rec.images.all %}
+                        <a href="{{ img.image.url }}" target="_blank">
+                            <img src="{% static 'icons/image-svgrepo-com.svg' %}" style="width:22px;">
+                        </a>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <input type="file" class="image-input d-none" data-id="{{ row.id }}">
+
+            {% if not rec or not rec.is_done %}
+            <button class="add-image border-0 bg-transparent" data-id="{{ row.id }}">
+                <img src="{% static 'icons/plus-circle-svgrepo-com.svg' %}" style="width:22px;">
+            </button>
+            {% endif %}
+        </div>
+
+        <!-- DONE -->
+        <div class="col-2 border pt-2">
+            {% if rec and rec.is_done %}
+                <span class="fw-bold" style="color:#999999">DONE</span>
+            {% else %}
+                <button class="done-btn border-0 bg-transparent" data-id="{{ row.id }}">
+                    <span class="text-success fw-bold">OK</span>
+                </button>
+            {% endif %}
+        </div>
+
+    </div>
+    {% endwith %}
+    {% endfor %}
+
+</div>
+
+<!-- MONTH SWITCH -->
+<script>
+document.querySelector(".btn-prev").onclick = () => changeMonth(-1);
+document.querySelector(".btn-next").onclick = () => changeMonth(1);
+
+function changeMonth(offset) {
+    let {year, month} = getYearMonth();
+
+    month += offset;
+    if (month < 1) { month = 12; year--; }
+    if (month > 12) { month = 1; year++; }
+
+    window.location.href = `?year=${year}&month=${month}`;
+}
+</script>
+
+<!-- AJAX -->
+<script>
+
+// GET YEAR / MONTH
+function getYearMonth() {
+    const text = document.querySelector("h1").innerText;
+    const [year, m] = text.split(" - M");
+    return { year: parseInt(year), month: parseInt(m) };
+}
+
+// SAVE PAYMENT
+document.querySelectorAll(".payment-input").forEach(input => {
+    input.addEventListener("change", function() {
+        const jobId = this.dataset.id;
+        const payment = this.value === "" ? null : this.value;
+        const {year, month} = getYearMonth();
+
+        fetch("{% url 'save_payment' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: JSON.stringify({
+                job_id: jobId,
+                payment: payment,
+                year: year,
+                month: month
+            })
+        });
+    });
+});
+
+// ADD IMAGE
+document.querySelectorAll(".add-image").forEach(btn => {
+    btn.addEventListener("click", function() {
+        const jobId = this.dataset.id;
+        document.querySelector(`.image-input[data-id="${jobId}"]`).click();
+    });
+});
+
+// UPLOAD IMAGE
+document.querySelectorAll(".image-input").forEach(input => {
+    input.addEventListener("change", function() {
+        const jobId = this.dataset.id;
+        const file = this.files[0];
+        const {year, month} = getYearMonth();
+
+        const formData = new FormData();
+        formData.append("image", file);
+        formData.append("job_id", jobId);
+        formData.append("year", year);
+        formData.append("month", month);
+
+        fetch("{% url 'upload_image' %}", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            const list = document.querySelector(`.image-box[data-id="${jobId}"] .image-list`);
+
+            const link = document.createElement("a");
+            link.href = data.url;
+            link.target = "_blank";
+
+            const img = document.createElement("img");
+            img.src = "{% static 'icons/image-svgrepo-com.svg' %}";
+            img.style.width = "22px";
+
+            link.appendChild(img);
+            list.appendChild(link);
+        });
+    });
+});
+
+// DONE BUTTON
+document.querySelectorAll(".done-btn").forEach(btn => {
+    btn.addEventListener("click", function() {
+        const jobId = this.dataset.id;
+        const {year, month} = getYearMonth();
+
+        fetch("{% url 'mark_done' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: JSON.stringify({
+                job_id: jobId,
+                year: year,
+                month: month
+            })
+        })
+        .then(() => {
+
+            // DONE → text
+            this.outerHTML = '<span class="fw-bold" style="color:#999999">DONE</span>';
+
+            // remove +
+            const addBtn = document.querySelector(`.add-image[data-id="${jobId}"]`);
+            if (addBtn) addBtn.remove();
+
+            // input → formatted text
+            const input = document.querySelector(`.payment-input[data-id="${jobId}"]`);
+            if (input) {
+                const raw = input.value;
+                const value = (!raw || raw.trim() === "")
+                    ? "-"
+                    : parseFloat(raw).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    });
+
+                input.outerHTML = `<span>${value}</span>`;
+            }
+        });
+    });
+});
+
+</script>
+
+{% endblock %}

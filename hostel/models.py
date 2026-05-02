@@ -80,7 +80,95 @@ class RoomState(models.Model):
     out = models.BooleanField(default=False)
     key = models.BooleanField(default=False)
     is_clean = models.BooleanField(default=False)
+    is_extend = models.BooleanField(default=False)
 
     # for the admin section
     def __str__(self):
         return self.name
+
+
+# Allergy
+class Allergy(models.Model):
+    item_en = models.CharField(max_length=30, blank=False)
+    item_cn = models.CharField(max_length=30, blank=False)
+    item_th = models.CharField(max_length=30, blank=False)
+
+    # for the admin section
+    def __str__(self):
+        return self.item_en
+
+# Restaurant Order
+class ResOrder(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    allergy = models.CharField(max_length=200, blank=False)
+    order = models.CharField(max_length=200, blank=False)
+
+    # for the admin section
+    def __str__(self):
+        return self.id
+
+
+# Restaurant Food
+class Food(models.Model):
+    foodType = models.ForeignKey(
+        "FoodType",
+        on_delete=models.SET_NULL,  # keeps guest even if room is deleted
+        null=True,
+        blank=True,
+        related_name="foodType"
+    )
+    name = models.CharField(max_length=200, blank=False)
+
+    # for the admin section
+    def __str__(self):
+        return self.name
+
+
+# Restaurant Food
+class FoodType(models.Model):
+    name = models.CharField(max_length=200, blank=False)
+
+    # for the admin section
+    def __str__(self):
+        return self.name
+
+
+# Monthly Job
+class MonthlyJob(models.Model):
+    name = models.CharField(max_length=200, blank=False)
+
+    # for the admin section
+    def __str__(self):
+        return self.name
+
+class MonthlyJobRecord(models.Model):
+    job = models.ForeignKey(
+        "MonthlyJob",
+        on_delete=models.SET_NULL,  # keeps guest even if room is deleted
+        null=True,
+        blank=True,
+        related_name="records"
+    )
+    year = models.IntegerField()
+    month = models.IntegerField()
+    is_done = models.BooleanField(default=False)
+    payment = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    # for the admin section
+    def __str__(self):
+        return f"{self.job} - {self.year}-{self.month}"
+
+
+class MonthlyJobImage(models.Model):
+    record = models.ForeignKey(
+        "MonthlyJobRecord",
+        on_delete=models.CASCADE,
+        related_name="images"
+    )
+    image = CloudinaryField('image')

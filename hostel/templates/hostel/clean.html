@@ -1,4 +1,4 @@
-{% extends 'hostel/h_base.html' %}
+{% extends 'p_base.html' %}
 {% block content %}
 <style>
 .btn{
@@ -50,7 +50,14 @@ function resetRooms() {
         <!-- ROOM (OUT toggle) -->
         <div class="col-2 m-0 p-0 mb-2 text-start ps-2">
             <button
-                class="btn toggle-out {% if r.out %}btn-danger{% else %}btn-secondary{% endif %}"
+                class="btn toggle-out
+                    {% if r.out %}
+                        btn-danger
+                    {% elif r.is_extend %}
+                        btn-prep
+                    {% else %}
+                        btn-secondary
+                    {% endif %}"
                 data-id="{{ r.id }}">
                 {{ r.name }}
             </button>
@@ -276,34 +283,42 @@ function updateButtonsUI(roomId, isActive) {
 document.querySelectorAll(".toggle-out").forEach(btn => {
 
     // initial state from Django
-    btn.dataset.state = btn.classList.contains("btn-danger") ? "on" : "off";
+    if (btn.classList.contains("btn-danger")) {
+        btn.dataset.state = "on";
+    } else if (btn.classList.contains("btn-prep")) {
+        btn.dataset.state = "prep";
+    } else {
+        btn.dataset.state = "off";
+    }
 
     btn.addEventListener("click", function() {
         let state = this.dataset.state;
         const roomId = this.dataset.id;
 
         if (state === "off") {
-            // OFF → PREP (yellow only, no DB)
+            // OFF → PREP (extend)
             this.classList.remove("btn-secondary");
             this.classList.add("btn-prep");
             this.dataset.state = "prep";
 
+            sendUpdate(roomId, "extend");   // ✅ NEW
+
         } else if (state === "prep") {
-            // PREP → ON (activate)
+            // PREP → ON (checkout)
             this.classList.remove("btn-prep");
             this.classList.add("btn-danger");
             this.dataset.state = "on";
 
-            sendUpdate(roomId, "out");
+            sendUpdate(roomId, "out");      // ✅ existing
             updateButtonsUI(roomId, true);
 
         } else if (state === "on") {
-            // ON → OFF (deactivate)
+            // ON → OFF (reset)
             this.classList.remove("btn-danger");
             this.classList.add("btn-secondary");
             this.dataset.state = "off";
 
-            sendUpdate(roomId, "out");
+            sendUpdate(roomId, "off");      // ✅ NEW
             updateButtonsUI(roomId, false);
         }
     });

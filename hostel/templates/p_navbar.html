@@ -2,7 +2,7 @@
     <div class="container px-4 px-lg-5 d-flex justify-content-start align-items-center">
 
         <a class="navbar-brand me-3" href="{% url 'language' %}">
-            <h2 style="font-weight:bold; margin:0;">Hostel</h2>
+            <h2 style="font-weight:bold; margin:0;">PANDA</h2>
         </a>
 
         <ul class="navbar-nav flex-row">
@@ -21,6 +21,17 @@
             <li class="nav-item me-3">
                 <a class="nav-link" href="{% url 'access' %}?next={% url 'glist' %}">
                     List
+                </a>
+            </li>
+
+            <li class="nav-item me-3">
+                <a class="nav-link" href="{% url 'r_order' %}">
+                    Restaurant
+                </a>
+            </li>
+            <li class="nav-item me-3">
+                <a class="nav-link" href="{% url 'monthly_job' %}">
+                    monthly job
                 </a>
             </li>
         </ul>

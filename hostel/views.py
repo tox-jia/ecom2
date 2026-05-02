@@ -1,21 +1,19 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from .models import Guest, Term, RoomState
+from .models import Guest, Term, RoomState, MonthlyJob, MonthlyJobRecord, MonthlyJobImage
 from .forms import CheckinForm
 
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 import json
+from django.utils import timezone
 
 
 # --------------------
 # LANGUAGE PAGE
 # --------------------
 def language(request):
-    # Optional: reset session if user wants to restart
     if request.GET.get('reset'):
         request.session.flush()
-
     return render(request, 'hostel/language.html')
 
 
@@ -23,14 +21,11 @@ def language(request):
 # CHECK-IN
 # --------------------
 def checkin(request):
-    # 🔒 require language first
     lang = request.GET.get('lang')
 
-    # ✅ only set once (LOCK)
     if lang:
         request.session['lang'] = lang
 
-    # 🚫 no language → go back
     if 'lang' not in request.session:
         return redirect('language')
 
@@ -40,11 +35,8 @@ def checkin(request):
         form = CheckinForm(request.POST, request.FILES)
         if form.is_valid():
             guest = form.save()
-
-            # save session
             request.session['guest_id'] = guest.id
             request.session['answers'] = {}
-
             return redirect('terms', step=1)
     else:
         form = CheckinForm()
@@ -56,14 +48,12 @@ def checkin(request):
 
 
 # --------------------
-# TERMS (STEP FLOW)
+# TERMS
 # --------------------
 def terms(request, step):
-    # 🔒 must have language
     if 'lang' not in request.session:
         return redirect('language')
 
-    # 🔒 must have started check-in
     guest_id = request.session.get('guest_id')
     if not guest_id:
         return redirect('checkin')
@@ -71,8 +61,7 @@ def terms(request, step):
     terms_list = list(Term.objects.all().order_by('id'))
     total = len(terms_list)
 
-    # 🛑 prevent overflow
-    if step > len(terms_list):
+    if step > total:
         return redirect('summary')
 
     term = terms_list[step - 1]
@@ -81,21 +70,16 @@ def terms(request, step):
     if request.method == "POST":
         answer = request.POST.get('answer')
 
-        # ❌ wrong answer
-        lang = request.session.get('lang')
-
         if answer != term.correct_answer:
             msg = term.get_warning(lang) or "Invalid answer"
             messages.error(request, msg)
             return redirect('terms', step=step)
 
-        # ✅ save answer
         answers = request.session.get('answers', {})
         answers[str(term.id)] = answer
         request.session['answers'] = answers
 
-        # ➡️ next step
-        if step < len(terms_list):
+        if step < total:
             return redirect('terms', step=step + 1)
         else:
             return redirect('summary')
@@ -111,13 +95,10 @@ def terms(request, step):
     })
 
 
-
-
 # --------------------
 # SUMMARY
 # --------------------
 def summary(request):
-    # 🔒 must have language
     if 'lang' not in request.session:
         return redirect('language')
 
@@ -128,7 +109,6 @@ def summary(request):
     guest = Guest.objects.get(id=guest_id)
     answers = request.session.get('answers', {})
 
-    # save to DB
     guest.terms_answers = answers
     guest.save()
 
@@ -144,15 +124,56 @@ def summary(request):
 
 
 # --------------------
-# VIEW GUEST (ADMIN / VIEW)
+# ACCESS PASSWORDS
+# --------------------
+ACCESS_PASSWORDS = {
+    "clean": "2024",
+    "glist": "122812",
+    "monthly_job": "2024",
+}
+
+def access_gate(request):
+    next_url = request.GET.get('next', '/')
+
+    ROUTE_MAP = {
+        "/hostel/clean/": "clean",
+        "/hostel/glist/": "glist",
+        "/hostel/monthly_job/": "monthly_job",
+    }
+
+    key = ROUTE_MAP.get(next_url)
+    print("NEXT:", next_url)
+    print("KEY:", key)
+
+    if request.method == "POST":
+        password = request.POST.get("password")
+
+        if key and ACCESS_PASSWORDS.get(key) == password:
+            request.session[f'access_{key}'] = True
+            return redirect(next_url)
+        else:
+            return render(request, "access.html", {
+                "error": "Wrong password",
+                "next": next_url
+            })
+
+    return render(request, "access.html", {"next": next_url})
+
+
+# --------------------
+# GUEST LIST
 # --------------------
 def gList(request):
-    if not request.session.get('access_granted'):
-        return redirect(f"/hostel/access/?next=/hostel/glist/")
+    if not request.session.get('access_glist'):
+        return redirect("/hostel/access/?next=/hostel/glist/")
 
     guests = Guest.objects.all().order_by('-id')
     rooms = RoomState.objects.all().order_by('id')
-    return render(request, 'hostel/glist.html', {'guest': guests, 'rooms': rooms})
+
+    return render(request, 'hostel/glist.html', {
+        'guest': guests,
+        'rooms': rooms
+    })
 
 
 def assign_room(request, guest_id):
@@ -178,61 +199,45 @@ def assign_room(request, guest_id):
     return JsonResponse({"success": False})
 
 
-
 # --------------------
 # CLEAN
 # --------------------
 def clean(request):
-    if not request.session.get('access_granted'):
-        return redirect(f"/hostel/access/?next=/hostel/clean/")
+    if not request.session.get('access_clean'):
+        return redirect("/hostel/access/?next=/hostel/clean/")
 
     rooms = RoomState.objects.all().order_by('id')
 
-    rooms1 = rooms[:8]        # first 8
-    rooms2 = rooms[8:20]      # 9–20 (index 8 to 19)
-    rooms3 = rooms[20:]       # rest
-
     return render(request, 'hostel/clean.html', {
-        'rooms1': rooms1,
-        'rooms2': rooms2,
-        'rooms3': rooms3,
+        'rooms1': rooms[:8],
+        'rooms2': rooms[8:20],
+        'rooms3': rooms[20:],
     })
 
 
-
 def update_room(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
+    data = json.loads(request.body)
+    room = RoomState.objects.get(id=data.get("id"))
+    field = data.get("field")
 
-        room_id = data.get('id')
-        field = data.get('field')
+    if field == "out":
+        room.out = not room.out
+        room.is_extend = False
+    elif field == "extend":
+        room.is_extend = True
+        room.out = False
+    elif field == "off":
+        room.out = False
+        room.is_extend = False
+        room.key = False
+        room.is_clean = False
+    elif field == "key":
+        room.key = not room.key
+    elif field == "clean":
+        room.is_clean = not room.is_clean
 
-        room = RoomState.objects.get(id=room_id)
-
-        if field == 'out':
-            room.out = not room.out
-            if not room.out:
-                room.key = False
-                room.is_clean = False
-
-        elif field == 'key':
-            if room.out:
-                room.key = not room.key
-
-        elif field == 'clean':
-            if room.out:
-                room.is_clean = not room.is_clean
-
-        room.save()
-
-        return JsonResponse({
-            'out': room.out,
-            'key': room.key,
-            'is_clean': room.is_clean
-        })
-
-    return JsonResponse({'error': 'Invalid request'}, status=400)
-
+    room.save()
+    return JsonResponse({"status": "ok"})
 
 
 def reset_rooms(request):
@@ -240,36 +245,85 @@ def reset_rooms(request):
         RoomState.objects.update(
             out=False,
             key=False,
-            is_clean=False
+            is_clean=False,
+            is_extend=False,
         )
         return JsonResponse({"status": "ok"})
 
     return JsonResponse({"error": "Invalid request"}, status=400)
 
 
+# --------------------
+# MONTHLY JOB
+# --------------------
+def monthly_job(request):
+    if not request.session.get('access_monthly_job'):
+        return redirect("/hostel/access/?next=/hostel/monthly_job/")  # ✅ FIXED
 
+    now = timezone.now()
+    year = int(request.GET.get("year", now.year))
+    month = int(request.GET.get("month", now.month))
+
+    job_list = MonthlyJob.objects.all().order_by('id')
+    records = MonthlyJobRecord.objects.filter(year=year, month=month)
+
+    record_map = {r.job_id: r for r in records}
+
+    return render(request, "management/monthly_job.html", {
+        "joblist": job_list,
+        "record_map": record_map,
+        "year": year,
+        "month": month
+    })
+
+
+def save_payment(request):
+    data = json.loads(request.body)
+
+    record, _ = MonthlyJobRecord.objects.get_or_create(
+        job_id=data["job_id"],
+        year=data["year"],
+        month=data["month"]
+    )
+
+    record.payment = data["payment"] or None
+    record.save()
+
+    return JsonResponse({"status": "ok"})
+
+
+def upload_image(request):
+    record, _ = MonthlyJobRecord.objects.get_or_create(
+        job_id=request.POST.get("job_id"),
+        year=request.POST.get("year"),
+        month=request.POST.get("month")
+    )
+
+    img = MonthlyJobImage.objects.create(
+        record=record,
+        image=request.FILES.get("image")
+    )
+
+    return JsonResponse({"url": img.image.url})
+
+
+def mark_done(request):
+    data = json.loads(request.body)
+
+    record, _ = MonthlyJobRecord.objects.get_or_create(
+        job_id=data["job_id"],
+        year=data["year"],
+        month=data["month"]
+    )
+
+    record.is_done = True
+    record.save()
+
+    return JsonResponse({"status": "done"})
 
 
 # --------------------
-# PASSWORD
+# RESTAURANT
 # --------------------
-
-ACCESS_PASSWORD = "122812"  # ← change this to your fixed password
-
-
-def access_gate(request):
-    next_url = request.GET.get('next', '/')
-
-    if request.method == "POST":
-        password = request.POST.get("password")
-
-        if password == ACCESS_PASSWORD:
-            request.session['access_granted'] = True
-            return redirect(next_url)
-        else:
-            return render(request, "hostel/access.html", {
-                "error": "Wrong password",
-                "next": next_url
-            })
-
-    return render(request, "hostel/access.html", {"next": next_url})
+def r_order(request):
+    return render(request, "restaurant/order.html")
