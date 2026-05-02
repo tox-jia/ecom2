@@ -56,7 +56,7 @@ a:active {
         </div>
 
         <!-- PAYMENT -->
-        <div class="col-3 border pt-2">
+        <div class="col-3 border p-0 pt-1">
             {% if rec and rec.is_done %}
                 {% if rec.payment %}
                     {{ rec.payment|floatformat:2|intcomma }}
