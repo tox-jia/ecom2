@@ -127,8 +127,8 @@ def summary(request):
 # ACCESS PASSWORDS
 # --------------------
 ACCESS_PASSWORDS = {
-    "clean": "2024",
-    "glist": "122812",
+    "clean": "1228",
+    "glist": "1228",
     "monthly_job": "2024",
 }
 
