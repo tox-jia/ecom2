@@ -172,3 +172,49 @@ class MonthlyJobImage(models.Model):
         related_name="images"
     )
     image = CloudinaryField('image')
+
+
+
+
+# --------------------
+# HR
+# --------------------
+class Staff(models.Model):
+    name = models.CharField(max_length=200)
+    salary = models.IntegerField()
+    birth_day = models.DateField(blank=True, null=True)
+    start_day = models.DateField(blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+
+class StaffDayRecord(models.Model):
+    staff = models.ForeignKey(
+        "Staff",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="records"
+    )
+
+    year = models.IntegerField()
+    month = models.IntegerField()
+    day = models.IntegerField()
+
+    STATUS_CHOICES = [
+        ("work", "Work"),
+        ("half", "Half Day"),
+        ("off", "Day Off"),
+    ]
+
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default="work"
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.staff} - {self.year}-{self.month}-{self.day}"

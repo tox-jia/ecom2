@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from .models import Guest, Term, RoomState, MonthlyJob, MonthlyJobRecord, MonthlyJobImage
+from .models import *
 from .forms import CheckinForm
 
 from django.http import JsonResponse
@@ -130,6 +130,7 @@ ACCESS_PASSWORDS = {
     "clean": "1228",
     "glist": "1228",
     "monthly_job": "2024",
+    "hr": "2024",
 }
 
 def access_gate(request):
@@ -139,6 +140,7 @@ def access_gate(request):
         "/hostel/clean/": "clean",
         "/hostel/glist/": "glist",
         "/hostel/monthly_job/": "monthly_job",
+        "/hostel/hr/": "hr",
     }
 
     key = ROUTE_MAP.get(next_url)
@@ -327,3 +329,76 @@ def mark_done(request):
 # --------------------
 def r_order(request):
     return render(request, "restaurant/order.html")
+
+
+
+from django.shortcuts import render, get_object_or_404
+from django.http import JsonResponse
+from django.utils import timezone
+from calendar import monthrange
+import json
+
+from .models import Staff, StaffDayRecord
+
+
+# --------------------
+# HR PAGE
+# --------------------
+def hr(request):
+    if not request.session.get('access_hr'):
+        return redirect("/hostel/access/?next=/hostel/hr/")  # ✅ FIXED
+    now = timezone.now()
+
+    year = int(request.GET.get("year", now.year))
+    month = int(request.GET.get("month", now.month))
+
+    staff_list = Staff.objects.all().order_by("id")
+
+    total_days = monthrange(year, month)[1]
+    days = range(1, total_days + 1)
+
+    records = StaffDayRecord.objects.filter(year=year, month=month)
+
+    # ✅ FIX: nested dict structure (IMPORTANT)
+    record_map = {}
+    for r in records:
+        record_map.setdefault(r.staff_id, {})
+        record_map[r.staff_id][r.day] = r
+
+    return render(request, "management/hr.html", {
+        "staff": staff_list,
+        "days": days,
+        "record_map": record_map,
+        "year": year,
+        "month": month
+    })
+
+
+def update_hr(request):
+    data = json.loads(request.body)
+
+    staff = get_object_or_404(Staff, id=data["staff_id"])
+
+    rec, created = StaffDayRecord.objects.get_or_create(
+        staff=staff,
+        year=data["year"],
+        month=data["month"],
+        day=data["day"],
+        defaults={"status": "work"}
+    )
+
+    # ✅ IF FRONTEND SENDS STATUS → USE IT
+    if "status" in data:
+        rec.status = data["status"]
+    else:
+        # fallback cycle
+        if rec.status == "work":
+            rec.status = "half"
+        elif rec.status == "half":
+            rec.status = "off"
+        else:
+            rec.status = "work"
+
+    rec.save()
+
+    return JsonResponse({"status": rec.status})

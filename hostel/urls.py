@@ -23,4 +23,7 @@ urlpatterns = [
     path('save_payment/', views.save_payment, name='save_payment'),
     path('upload_image/', views.upload_image, name='upload_image'),
     path('mark_done/', views.mark_done, name='mark_done'),
+
+    path('hr/', views.hr, name='hr'),
+    path('hr/update/', views.update_hr, name='update_hr'),
 ]

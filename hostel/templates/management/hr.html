@@ -1,0 +1,204 @@
+{% extends 'p_base.html' %}
+{% block content %}
+{% load custom_tags %}
+{% load static %}
+{% load humanize %}
+
+<style>
+a {
+    text-decoration: none !important;
+    color: inherit !important;
+}
+a:hover {
+    text-decoration: none !important;
+    color: inherit !important;
+}
+a:focus,
+a:active {
+    outline: none !important;
+    box-shadow: none !important;
+}
+</style>
+
+<style>
+.status-icon.status-work {
+    color: #28a745 !important;
+}
+
+.status-icon.status-half {
+    color: #ba0 !important;
+}
+
+.status-icon.status-off {
+    color: #a00 !important;
+}
+</style>
+
+
+<div class="container">
+    <!-- HEADER -->
+    <div class="row">
+        <div class="col-2 text-start pt-2 ps-3">
+            <button class="btn btn-secondary btn-prev"><<</button>
+        </div>
+
+        <div class="col-8 text-center pt-2">
+            <h1><b>{{ year }} - M{{ month }}</b></h1>
+        </div>
+
+        <div class="col-2 text-end pt-2 pe-3">
+            <button class="btn btn-secondary btn-next">>></button>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <div class="row text-center fw-bold">
+        <div class="col-1 border"></div>
+        {% for s in staff %}
+            <div class="col border">{{ s.name }}</div>
+        {% endfor %}
+    </div>
+
+    <!-- DAYS -->
+    {% for day in days %}
+    <div class="row text-center">
+
+        <!-- DAY LABEL -->
+        <div class="col-1 border">
+            {{ day }}
+        </div>
+
+        <!-- STAFF COLUMNS -->
+        {% for s in staff %}
+            {% with rec=record_map|get_item:s.id|get_item:day %}
+            <div class="col border p-1">
+
+                <div class="status-box"
+                     data-staff="{{ s.id }}"
+                     data-day="{{ day }}"
+                     style="cursor:pointer; position:relative;">
+
+                    {% if rec %}
+                        <span class="status-icon status-{{ rec.status }}">
+                            {% if rec.status == "work" %}
+                                ●
+                            {% elif rec.status == "half" %}
+                                ◓
+                            {% elif rec.status == "off" %}
+                                ●
+                            {% endif %}
+                        </span>
+                    {% else %}
+                        <button class="status-btn border-0 bg-transparent"
+                                data-staff="{{ s.id }}"
+                                data-day="{{ day }}">
+                            <img src="{% static 'icons/plus-circle.svg' %}" style="width:18px;">
+                        </button>
+                    {% endif %}
+
+                </div>
+
+            </div>
+            {% endwith %}
+        {% endfor %}
+
+    </div>
+    {% endfor %}
+
+</div>
+
+
+<div class="text-center" id="statusMenu" style="
+    display:none;
+    position:absolute;
+    background:#fff;
+    border:1px solid #ccc;
+    padding:5px;
+    z-index:999;
+">
+    <a href="">
+        <div onclick="setStatus('work')">work</div>
+    </a>
+    <div>-</div>
+    <a href="">
+    <div onclick="setStatus('half')">half</div>
+    </a>
+    <div>-</div>
+    <a href="">
+    <div onclick="setStatus('off')">off</div>
+    </a>
+</div>
+
+
+<!-- MONTH SWITCH -->
+<script>
+document.querySelector(".btn-prev").onclick = () => changeMonth(-1);
+document.querySelector(".btn-next").onclick = () => changeMonth(1);
+
+function changeMonth(offset) {
+    let {year, month} = getYearMonth();
+
+    month += offset;
+    if (month < 1) { month = 12; year--; }
+    if (month > 12) { month = 1; year++; }
+
+    window.location.href = `?year=${year}&month=${month}`;
+}
+</script>
+
+<script>
+let selected = null;
+
+const menu = document.getElementById("statusMenu");
+
+document.addEventListener("click", () => {
+    menu.style.display = "none";
+    selected = null;
+});
+
+// IMPORTANT: use event delegation (fixes "nothing happens")
+document.addEventListener("click", function(e) {
+
+    const btn = e.target.closest(".status-btn");
+
+    if (!btn) return;
+
+    e.stopPropagation();
+
+    selected = {
+        staff: btn.dataset.staff,
+        day: btn.dataset.day
+    };
+
+    menu.style.display = "block";
+    menu.style.left = e.pageX + "px";
+    menu.style.top = e.pageY + "px";
+});
+
+function setStatus(status) {
+
+    if (!selected) return;
+
+    fetch("/hostel/hr/update/", {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": "{{ csrf_token }}",
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            staff_id: selected.staff,
+            day: selected.day,
+            year: {{ year }},
+            month: {{ month }},
+            status: status
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        // update UI without full reload (better UX)
+        location.reload();
+    });
+}
+</script>
+
+{% endblock %}
